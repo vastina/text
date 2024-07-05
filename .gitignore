@@ -1,0 +1,10 @@
+/.cache
+/.vs
+/.vscode
+/test
+/out
+compile_commands.json
+
+*.ttf
+*.exe
+*.dll
