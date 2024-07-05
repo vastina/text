@@ -30,6 +30,8 @@ FetchContent_MakeAvailable(zlib)
 FetchContent_Declare(
   freetype
   SOURCE_DIR "${env}/freetype/2.13.2"
+  # clone once to local
+  # GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
 )
 FetchContent_MakeAvailable(freetype)
 
