@@ -1,31 +1,23 @@
-﻿# CMakeList.txt : CMake project for img, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
-include_directories("D:\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.40.33807\\include")
-include_directories(${CMAKE_SOURCE_DIR})
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
-cmake_policy(SET CMP0074 NEW)
-include(FetchContent)
+cmake_policy(SET CMP0074 NEW) # for xxx_root
+set(env "C:/ProgramData/scoop/apps") # packages location
+include(FetchContent) # FetchContent_Declare FetchContent_MakeAvailable
+include_directories("D:\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.40.33807\\include") # clangd cat't find it automatically
 
-set(project_name img)
-project (${project_name})
+project(text-render)
 
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(env "C:/ProgramData/scoop/apps")
-
-
-# 下载和添加 Zlib
+# Zlib
 FetchContent_Declare(
   zlib
   URL https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip
 )
+# FreeType
 FetchContent_MakeAvailable(zlib)
 FetchContent_Declare(
   freetype
@@ -34,16 +26,40 @@ FetchContent_Declare(
   # GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
 )
 FetchContent_MakeAvailable(freetype)
+# sdl2
+set(SDL2_ROOT "${env}/SDL2/2.30.0")
+find_package(SDL2 REQUIRED)
+# sdl2_image
+set(SDL2_image_ROOT "${env}/SDL2_image/2.8.2")
+find_package(SDL2_image REQUIRED)
 
-include_directories("${CMAKE_SOURCE_DIR}/code/include")
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/code/*.cpp")
-add_library(${project_name} STATIC ${SOURCES})
-target_include_directories(${project_name} PRIVATE ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
-target_link_libraries(${project_name} zlibstatic)
+
+set(LIBBASE base)
+set(BASE_INCLUDE "${CMAKE_SOURCE_DIR}/${LIBBASE}/include")
+file(GLOB SOURCES_BASE "${CMAKE_SOURCE_DIR}/${LIBBASE}/*.cpp")
+add_library(${LIBBASE} STATIC ${SOURCES_BASE})
+target_include_directories(${LIBBASE} PRIVATE ${BASE_INCLUDE} ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+target_link_libraries(${LIBBASE} zlibstatic)
+
+set(MAINPROJECT render)
+set(RENDER_INCLUDE "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/include")
+file(GLOB SOURCES_RENDER "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/*.cpp")
+add_executable(render ${SOURCES_RENDER})
+target_include_directories(${MAINPROJECT} PRIVATE
+  ${BASE_INCLUDE} ${RENDER_INCLUDE}
+  ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} 
+  ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
+  ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS}
+)
+target_link_libraries(${MAINPROJECT} PRIVATE 
+  ${LIBBASE}
+  ${SDL2_LIBRARIES} SDL2_image::SDL2_image 
+  freetype
+)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET ${project_name} PROPERTY CXX_STANDARD 20)
+  set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20)
+  set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20)
 endif()
 
-add_subdirectory(testcase)
-# set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
