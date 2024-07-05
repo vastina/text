@@ -10,37 +10,36 @@ using namespace std::chrono_literals;
 
 int main( int argc, char* argv[] )
 {
-  // todo, search for ttf in platforms
-  constexpr std::string_view font_path { "KAISG.ttf" };
-  auto text { vastina::Text( font_path.data() ) };
+  auto text { vastina::Text( "KAISG.ttf" ) };
 
-  constexpr std::string_view name { "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-                                    "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz" };
+  constexpr std::string_view name { "abcdefghijklmnopqrstuvwxyz"
+                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                    "1234567890"
+                                    "~`!@#$%^&*()_-+={}[]:;\"'<,>.?/|\\" };
   constexpr auto length = name.size();
 
-  unsigned wa = 0;
   unsigned h = 0;
   for ( int i = 0; i < length; i++ ) {
     text.AddChar( name[i], 0, 32 * 64 );
     FT_Bitmap* bitmap { text.LoadChar( name[i] ) };
-    wa += bitmap->width;
     h = h > bitmap->rows ? h : bitmap->rows;
   }
 
   // 创建窗口
-  const unsigned ww = wa / 2;
-  const unsigned hh = h * 12;
+  constexpr unsigned ww { 1000 };
+  constexpr unsigned hh { 800 };
   auto player { vastina::img_player( "abc", ww, hh ) };
 
   unsigned r = 5;
   // auto start { std::chrono::system_clock::now() }; // frame control
-  const std::string filename { "./test/window.png" };
+  std::filesystem::create_directories( "./tmp" );
+  const std::string filename { "tmp/window.png" };
   vastina::png::png p { filename, ww, hh };
-  std::filesystem::create_directories( "./test" );
+
   while ( !player.ShouldQuit() ) {
     std::filesystem::remove( filename );
-    unsigned xoffset = 200; // ww / 10;
-    unsigned yoffset = hh / 3;
+    unsigned xoffset = 100; // ww / 10;
+    unsigned yoffset = hh / 8;
     unsigned w_current = 0;
     for ( int i = 0; i < length; i++ ) {
       if ( w_current + xoffset > ww - xoffset ) {
@@ -74,9 +73,11 @@ int main( int argc, char* argv[] )
       //   now = std::chrono::system_clock::now();
       // start = now;
 
-      std::fill( p.data.begin(), p.data.end(), 0 );
+      // std::fill( p.data.begin(), p.data.end(), 0 );
     }
   }
 
+  std::filesystem::remove( filename );
+  std::filesystem::remove( "./tmp" );
   return 0;
 }
