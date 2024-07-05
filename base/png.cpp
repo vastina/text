@@ -9,7 +9,7 @@ namespace png {
 namespace {
 inline u32 calculate_crc32( const std::vector<uint8_t>& data )
 {
-  return crc32( 0L, reinterpret_cast<const Bytef*>( data.data() ), data.size() );
+  return crc32( 0L, reinterpret_cast<const Bytef*>( data.data() ), static_cast<u32>( data.size() ) );
 }
 }
 
@@ -23,7 +23,7 @@ void write_uint32( std::ofstream& file, uint32_t value )
 
 void write_chunk( std::ofstream& file, const string_view& type, const std::vector<uint8_t>& data )
 {
-  write_uint32( file, data.size() );
+  write_uint32( file, static_cast<u32>( data.size() ) );
   file.write( type.data(), 4 );
   file.write( reinterpret_cast<const char*>( data.data() ), data.size() );
 
@@ -75,7 +75,7 @@ void png::write()
   }
   {
     // todo, config
-    std::vector<uint8_t> compressed_data( ::compressBound( data.size() ) + 4 );
+    std::vector<uint8_t> compressed_data( ::compressBound( static_cast<uLongf>( data.size() ) ) + 4 );
     {
       constexpr char idat_signature[4] = { 'I', 'D', 'A', 'T' };
       compressed_data[0] = idat_signature[0];
@@ -83,8 +83,8 @@ void png::write()
       compressed_data[2] = idat_signature[2];
       compressed_data[3] = idat_signature[3];
     }
-    unsigned long compressed_size = compressed_data.size() - 4;
-    ::compress( compressed_data.data() + 4, &compressed_size, data.data(), data.size() );
+    unsigned long compressed_size = static_cast<unsigned long>( compressed_data.size() - 4 );
+    ::compress( compressed_data.data() + 4, &compressed_size, data.data(), static_cast<uLongf>( data.size() ) );
     compressed_data.resize( compressed_size + 4 );
 
     write_uint32( fs, compressed_size );
