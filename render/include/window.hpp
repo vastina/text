@@ -67,7 +67,6 @@ public:
       throw std::runtime_error( "sdl_img" );
     }
     SDL_Texture* texture = SDL_CreateTextureFromSurface( renderer, loadedSurface );
-    SDL_FreeSurface( loadedSurface );
     if ( texture == nullptr ) {
       std::cerr << "Unable to create texture from image! SDL Error: " << SDL_GetError() << std::endl;
       IMG_Quit();
@@ -78,6 +77,9 @@ public:
     }
     SDL_RenderCopy( renderer, texture, nullptr, nullptr );
     SDL_RenderPresent( renderer );
+
+    SDL_FreeSurface( loadedSurface );
+    SDL_DestroyTexture( texture );
   }
   void Clear() { SDL_RenderClear( renderer ); }
   // todo
