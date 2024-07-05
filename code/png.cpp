@@ -6,10 +6,12 @@
 namespace vastina {
 namespace png {
 
-namespace { inline u32 calculate_crc32( const std::vector<uint8_t>& data )
+namespace {
+inline u32 calculate_crc32( const std::vector<uint8_t>& data )
 {
   return crc32( 0L, reinterpret_cast<const Bytef*>( data.data() ), data.size() );
-}}
+}
+}
 
 void write_uint32( std::ofstream& file, uint32_t value )
 {
@@ -84,7 +86,7 @@ void png::write()
     unsigned long compressed_size = compressed_data.size() - 4;
     ::compress( compressed_data.data() + 4, &compressed_size, data.data(), data.size() );
     compressed_data.resize( compressed_size + 4 );
-    
+
     write_uint32( fs, compressed_size );
     fs.write( reinterpret_cast<const char*>( compressed_data.data() ), compressed_size + 4 );
     uint32_t crc = calculate_crc32( compressed_data );
@@ -94,6 +96,16 @@ void png::write()
     write_chunk( fs, "IEND", {} );
   }
   fs.close();
+}
+
+void png::DrawChar( const u32 width, const u32 height, const u8* buffer, const u32 xoffst, const u32 yoffst )
+{
+  for ( u32 y = 0; y < height; y++ ) {
+    for ( u32 x = 0; x < width; x++ ) {
+      auto val { buffer[y * width + x] };
+      setIndex( x + xoffst, y + yoffst, { val, val, val } );
+    }
+  }
 }
 
 }; // namespace png

@@ -49,6 +49,17 @@ public:
     data[index + 2] = rgb.g;
     data[index + 3] = rgb.b;
   }
+  void DrawChar( u32, u32, const u8*, u32, u32 );
+  template<typename func>
+  void FillWith( func judge, RGB color )
+  {
+    for ( unsigned y = 0; y < height; y++ ) {
+      for ( unsigned x = 0; x < width; x++ ) {
+        if ( judge( x, y ) )
+          setIndex( x, y, color );
+      }
+    }
+  }
 
   GSetter( filename ) GSetter( width ) GSetter( height ) GSetter( config ) GSetter( data )
 };
