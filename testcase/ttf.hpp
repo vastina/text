@@ -23,8 +23,13 @@ private:
   std::string font_path;
 
 public:
-  Text( const std::string& font_path = "KAISG.ttf" ) : font_path( font_path )
+  Text( std::string ttfpath = "KAISG.ttf" )
   {
+    if ( !std::filesystem::exists( font_path ) ) {
+      font_path = SearchTTf();
+    } else {
+      font_path = std::move( ttfpath );
+    }
     if ( FT_Init_FreeType( &library ) ) {
       std::cerr << "Could not initialize FreeType library" << std::endl;
       throw std::runtime_error( "freetype" );

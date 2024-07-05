@@ -30,10 +30,10 @@ int main( int argc, char* argv[] )
   // 创建窗口
   const unsigned ww = wa / 2;
   const unsigned hh = h * 12;
-  auto player { vastina::img_player( ww, hh ) };
+  auto player { vastina::img_player( "abc", ww, hh ) };
 
   unsigned r = 5;
-  auto start { std::chrono::system_clock::now() }; // frame control
+  // auto start { std::chrono::system_clock::now() }; // frame control
   const std::string filename { "./test/window.png" };
   vastina::png::png p { filename, ww, hh };
   std::filesystem::create_directories( "./test" );
@@ -48,8 +48,9 @@ int main( int argc, char* argv[] )
         yoffset += h;
       }
       FT_Bitmap* bitmap { text.LoadChar( name[i] ) };
-      p.DrawChar( bitmap->width, bitmap->rows, bitmap->buffer, w_current + xoffset, yoffset );
-      w_current += bitmap->width;
+      p.DrawChar( bitmap->width, bitmap->rows, bitmap->buffer, w_current + xoffset, yoffset + h - bitmap->rows );
+      constexpr unsigned gap = 10;
+      w_current += bitmap->width + gap;
     }
     r = ( r + 1 ) % hh;
     r = r == 0 ? 5 : r;
@@ -68,10 +69,10 @@ int main( int argc, char* argv[] )
       player.HandleEvent();
       player.Clear();
 
-      auto now { std::chrono::system_clock::now() };
-      while ( now - start < 5ms )
-        now = std::chrono::system_clock::now();
-      start = now;
+      // auto now { std::chrono::system_clock::now() };
+      // while ( now - start < 5ms )
+      //   now = std::chrono::system_clock::now();
+      // start = now;
 
       std::fill( p.data.begin(), p.data.end(), 0 );
     }

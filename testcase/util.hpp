@@ -36,4 +36,31 @@ inline static void GetScreenDPI( int& dpiX, int& dpiY )
 #endif
 }
 
+#include <filesystem>
+#include <string>
+
+static inline std::string SearchTTf()
+{
+
+#ifdef _WIN32
+  return "C:\\Windows\\Fonts\\arial.ttf";
+#elif __linux__
+  return "/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf";
+#endif
+  //   std::string search_path {};
+  // #ifdef _WIN32
+  //   search_path = "C:\\Windows\\Fonts";
+  // #elif __linux__
+  //   search_path = "/usr/share/fonts/truetype";
+  // #endif
+  //   for ( const auto& entry : std::filesystem::directory_iterator( search_path ) ) {
+  //     if( !entry.is_directory() ) {
+  //       const auto path { entry.path().filename().string() };
+  //       if( path.ends_with(".ttf") )
+  //         return path;
+  //     }
+  //   }
+  //   throw std::runtime_error( "no ttf found" );
+}
+
 #endif
