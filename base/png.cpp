@@ -3,7 +3,7 @@
 #include <fstream>
 #include <zlib.h>
 
-namespace vastina {
+namespace vas {
 namespace png {
 
 namespace {
@@ -44,7 +44,7 @@ void png::resize( u32 h, u32 w, u8 scale = 3 )
 void png::write()
 {
   {
-    for ( unsigned y = 0; y < height; y++ )
+    for ( u32 y = 0; y < height; y++ )
       data[y * width * 3 + y] = config.filter_method;
   }
 
@@ -103,10 +103,11 @@ void png::DrawChar( const u32 width, const u32 height, const u8* buffer, const u
   for ( u32 y = 0; y < height; y++ ) {
     for ( u32 x = 0; x < width; x++ ) {
       auto val { buffer[y * width + x] };
+      //      if(val > 16)
       setIndex( x + xoffst, y + yoffst, { val, val, val } );
     }
   }
 }
 
 }; // namespace png
-}; // namespace vastina
+}; // namespace vas

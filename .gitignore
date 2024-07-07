@@ -3,6 +3,7 @@
 /.vscode
 /test
 /out
+/build
 compile_commands.json
 
 *.ttf

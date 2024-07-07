@@ -3,7 +3,7 @@
 
 #include "vasdef.hpp"
 
-namespace vastina {
+namespace vas {
 namespace png {
 
 extern "C++" void write_uint32( std::ofstream& file, uint32_t value );
@@ -53,8 +53,8 @@ public:
   template<typename func>
   void FillWith( func judge, RGB color )
   {
-    for ( unsigned y = 0; y < height; y++ ) {
-      for ( unsigned x = 0; x < width; x++ ) {
+    for ( u32 y = 0; y < height; y++ ) {
+      for ( u32 x = 0; x < width; x++ ) {
         if ( judge( x, y ) )
           setIndex( x, y, color );
       }
@@ -65,6 +65,6 @@ public:
 };
 
 }; // namespace png
-}; // namespace vastina
+}; // namespace vas
 
 #endif

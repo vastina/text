@@ -10,7 +10,7 @@
 #include "vasdef.hpp"
 #include "util.hpp"
 
-namespace vastina {
+namespace vas {
 
 static int dpiX;
 static int dpiY;

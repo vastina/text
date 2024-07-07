@@ -8,7 +8,7 @@
 
 #include "vasdef.hpp"
 
-namespace vastina {
+namespace vas {
 
 class img_player
 {
