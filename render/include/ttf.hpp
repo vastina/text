@@ -61,7 +61,7 @@ public:
     faces.insert( std::make_pair( char_code, face ) );
   }
 
-  FT_Bitmap* LoadChar( u32 char_code ) { return &( faces.at( char_code )->glyph->bitmap ); }
+  FT_Bitmap* LoadCharBitmap( u32 char_code ) { return &( faces.at( char_code )->glyph->bitmap ); }
 };
 
 };

@@ -5,8 +5,10 @@
 #include <SDL_image.h>
 
 #include <iostream>
+#include <functional>
 
 #include "vasdef.hpp"
+#include "DrawBoard.hpp"
 
 namespace vas {
 
@@ -83,17 +85,81 @@ public:
   }
   void Clear() { SDL_RenderClear( renderer ); }
   // todo
-  void addhandle() {}
+
+private:
+  std::unordered_map<u32, std::function<void( const SDL_Event& )>> handles {
+    { SDL_QUIT, [this]( const SDL_Event& ) { quit = true; } } };
+
+public:
+  void addhandle( u32 EventType, const std::function<void( const SDL_Event& )>& handle )
+  {
+    handles.insert_or_assign( EventType, handle );
+  }
   void HandleEvent()
   {
     SDL_Event e;
     while ( SDL_PollEvent( &e ) != 0 ) {
-      if ( e.type == SDL_QUIT ) {
-        quit = true;
+      if ( handles.contains( e.type ) ) {
+        handles[e.type]( e );
       }
     }
   }
   inline bool ShouldQuit() const { return quit; }
+};
+
+struct mousehandle
+{
+  vas::DrawBoard& b;
+
+  bool down { false };
+  int xfirst { 0 };
+  int xcur { 0 };
+  int yfirst { 0 };
+  int ycur { 0 };
+  void DealDown( const SDL_Event& e )
+  {
+    down = true;
+    xfirst = e.button.x;
+    yfirst = e.button.y;
+    // if ( down ) {
+    //   // error, if down, why there is another down
+    // } else {
+    // }
+  }
+  void DealUp( const SDL_Event& e )
+  {
+    down = false;
+    if ( e.button.x > b.pic.width ) {
+      xcur = b.pic.width;
+    } else if ( e.button.x < 0 ) {
+      xcur = 0;
+    } else {
+      xcur = e.button.x;
+    }
+    if ( e.button.y > b.pic.height ) {
+      ycur = b.pic.height;
+    } else if ( e.button.y < 0 ) {
+      ycur = 0;
+    } else {
+      ycur = e.button.y;
+    }
+    b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
+  }
+
+  void DealMove( const SDL_Event& e )
+  {
+    if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
+         || static_cast<u64>( e.button.y ) > b.pic.height ) {
+      std::cout << xcur << ' ' << ycur << '\n';
+      return;
+    }
+    if ( down ) {
+      b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
+      xcur = e.button.x;
+      ycur = e.button.y;
+      b.DraeRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
+    }
+  }
 };
 
 }
