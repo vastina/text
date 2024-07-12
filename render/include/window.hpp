@@ -150,7 +150,6 @@ struct mousehandle
   {
     if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
          || static_cast<u64>( e.button.y ) > b.pic.height ) {
-      std::cout << xcur << ' ' << ycur << '\n';
       return;
     }
     if ( down ) {

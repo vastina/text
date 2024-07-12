@@ -21,6 +21,7 @@ private:
   FT_Library library;
   std::unordered_map<u32, FT_Face> faces;
   std::string font_path;
+  u32 maxcharheight { 0u };
 
 public:
   Text( std::string ttfpath = "KAISG.ttf" )
@@ -58,10 +59,12 @@ public:
       FT_Done_FreeType( library );
       return;
     }
+    maxcharheight = maxcharheight > face->glyph->bitmap.rows ? maxcharheight : face->glyph->bitmap.rows;
     faces.insert( std::make_pair( char_code, face ) );
   }
 
-  FT_Bitmap* LoadCharBitmap( u32 char_code ) { return &( faces.at( char_code )->glyph->bitmap ); }
+  FT_Bitmap* LoadCharBitmap( u32 char_code ) const { return &( faces.at( char_code )->glyph->bitmap ); }
+  u32 getMaxcharheight() const { return maxcharheight; }
 };
 
 };
