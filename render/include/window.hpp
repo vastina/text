@@ -12,7 +12,7 @@
 
 namespace vas {
 
-class img_player
+class Player
 {
 private:
   SDL_Window* wd { nullptr };
@@ -22,7 +22,7 @@ private:
   bool quit { false };
 
 public:
-  img_player( const char* title, u32 w = 800, u32 h = 600 ) : width( w ), height( h )
+  Player( const char* title, u32 w = 800, u32 h = 600 ) : width( w ), height( h )
   {
     if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
       std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
@@ -49,7 +49,7 @@ public:
       throw std::runtime_error( "sdl" );
     }
   }
-  ~img_player()
+  ~Player()
   {
     IMG_Quit();
     SDL_DestroyRenderer( renderer );
@@ -57,6 +57,20 @@ public:
     SDL_Quit();
   }
 
+  void Render( const DrawBoard& b )
+  {
+    SDL_Texture* texture = b.pic.texture;
+
+    SDL_UnlockTexture( texture );
+
+    SDL_RenderClear( renderer );
+    SDL_RenderCopy( renderer, texture, nullptr, nullptr );
+    SDL_RenderPresent( renderer );
+  }
+  SDL_Texture* CreateTexture( u32 format = SDL_PIXELFORMAT_RGB888, int access = SDL_TEXTUREACCESS_STREAMING )
+  {
+    return SDL_CreateTexture( renderer, format, access, width, height );
+  }
   void LoadImg( const char* filename )
   {
     SDL_Surface* loadedSurface = IMG_Load( filename );

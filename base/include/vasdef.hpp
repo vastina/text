@@ -29,6 +29,13 @@ using std::vector;
     ( member ) = _##member;                                                                                            \
   }
 
+struct RGB
+{
+  u8 r;
+  u8 g;
+  u8 b;
+};
+
 }
 
 #endif

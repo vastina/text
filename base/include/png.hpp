@@ -19,13 +19,6 @@ struct pngConfig
   GSetter( interlace_method )
 };
 
-struct RGB
-{
-  u8 r;
-  u8 g;
-  u8 b;
-};
-
 struct png
 {
   string filename;
