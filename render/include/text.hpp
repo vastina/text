@@ -3,6 +3,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <utf8.h>
 
 #include <iostream>
 #include <unordered_map>
@@ -17,11 +18,27 @@ class Text
 {
 private:
   FT_Library library;
-  std::unordered_map<u32, FT_Face> faces;
+  std::unordered_map<u64, FT_Face> faces;
   std::string font_path;
   u32 maxcharheight { 0u };
 
 public:
+  static inline std::vector<uint32_t> utf8_to_utf32( const std::string& utf8_str )
+  {
+    std::vector<uint32_t> utf32_str;
+    auto it = utf8_str.begin();
+    while ( it != utf8_str.end() ) {
+      utf32_str.push_back( utf8::next( it, utf8_str.end() ) );
+    }
+    return utf32_str;
+  }
+  static inline std::string utf32_to_utf8( const std::vector<uint32_t>& utf32_str )
+  {
+    std::string utf8_str;
+    utf8::utf32to8( utf32_str.begin(), utf32_str.end(), back_inserter( utf8_str ) );
+    return utf8_str;
+  }
+
   Text( std::string ttfpath = "KAISG.ttf" )
   {
     if ( !std::filesystem::exists( ttfpath ) ) {
@@ -77,7 +94,8 @@ struct typeSetter
     i32 char_height { 32 * 48 };
     // ...
   } config;
-  std::string content;
+  std::vector<u32> content;
+  //  std::string content;
   struct pos
   {
     u32 x;
@@ -88,9 +106,10 @@ struct typeSetter
   DrawBoard& b;
   Text charConfig { "Deng.ttf" }; // 等线,form C:\\Windows\\Fonts
 
-  typeSetter( const std::string& text, vas::DrawBoard& board ) : content( text ), poscache( text.size() ), b { board }
+  typeSetter( const std::string& text, vas::DrawBoard& board ) : poscache( text.size() ), b { board }
   {
-    for ( const auto ch : text ) {
+    content = Text::utf8_to_utf32( text );
+    for ( const auto ch : content ) {
       charConfig.AddChar( ch, 0, config.char_height );
     }
   }
@@ -119,7 +138,7 @@ struct typeSetter
         if ( w_current > width ) {
           w_current = 0;
           y_offset += charConfig.getMaxcharheight() + config.ygap;
-        } 
+        }
         const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
 
         poscache[i] = { left + w_current, top + y_offset };

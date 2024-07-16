@@ -28,13 +28,13 @@ if(WIN32)
     SOURCE_DIR "${env}/zlib/1.3.1"
     # URL https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip
   )
+  FetchContent_MakeAvailable(zlib)
 elseif(LINUX)
   find_package(ZLIB REQUIRED)
 endif()
 
 # FreeType
 if(WIN32)  
-  FetchContent_MakeAvailable(zlib)
   FetchContent_Declare(
     freetype
     SOURCE_DIR "${env}/freetype/2.13.2"
@@ -44,6 +44,12 @@ if(WIN32)
   FetchContent_MakeAvailable(freetype)
 elseif(LINUX)
   find_package(Freetype REQUIRED)
+endif()
+
+# utfcpp head only
+if(WIN32)  
+  set(utfcpp_INCLUDE_DIR "${env}/utfcpp/source")
+  # https://github.com/nemtrif/utfcpp.git
 endif()
 
 # sdl2
@@ -88,6 +94,7 @@ if(WIN32)
     ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} 
     ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
     ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
     ${LIBBASE}
@@ -111,8 +118,8 @@ endif()
 
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
-    set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20)
-    set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20)
+    set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
+    set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
   endif()
 endif()
 
