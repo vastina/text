@@ -1,6 +1,7 @@
 #include "text.hpp"
 #include "window.hpp"
 
+const static BeforeStart bs {};
 int main( int argc, char* argv[] )
 {
   constexpr u32 ww { 1000 };

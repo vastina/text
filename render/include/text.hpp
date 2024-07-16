@@ -13,9 +13,6 @@
 
 namespace vas {
 
-static int dpiX;
-static int dpiY;
-
 class Text
 {
 private:
@@ -27,7 +24,7 @@ private:
 public:
   Text( std::string ttfpath = "KAISG.ttf" )
   {
-    if ( !std::filesystem::exists( font_path ) ) {
+    if ( !std::filesystem::exists( ttfpath ) ) {
       font_path = SearchTTf();
     } else {
       font_path = std::move( ttfpath );
@@ -36,7 +33,6 @@ public:
       std::cerr << "Could not initialize FreeType library" << std::endl;
       throw std::runtime_error( "freetype" );
     }
-    GetScreenDPI( dpiX, dpiY );
   }
   ~Text()
   {
@@ -45,7 +41,7 @@ public:
     }
     FT_Done_FreeType( library );
   }
-  void AddChar( u32 char_code, i64 char_width, i64 char_height )
+  void AddChar( u64 char_code, i64 char_width, i64 char_height )
   {
     FT_Face face;
     if ( FT_New_Face( library, font_path.data(), 0, &face ) ) {
@@ -64,7 +60,7 @@ public:
     faces.insert( std::make_pair( char_code, face ) );
   }
 
-  FT_Bitmap* LoadCharBitmap( u32 char_code ) const { return &( faces.at( char_code )->glyph->bitmap ); }
+  FT_Bitmap* LoadCharBitmap( u64 char_code ) const { return &( faces.at( char_code )->glyph->bitmap ); }
   u32 getMaxcharheight() const { return maxcharheight; }
 };
 
@@ -90,7 +86,7 @@ struct typeSetter
   bool cache_avaliable { false };
   std::vector<pos> poscache;
   DrawBoard& b;
-  Text charConfig { "KAISG.ttf" };
+  Text charConfig { "Deng.ttf" }; // 等线,form C:\\Windows\\Fonts
 
   typeSetter( const std::string& text, vas::DrawBoard& board ) : content( text ), poscache( text.size() ), b { board }
   {
@@ -108,13 +104,13 @@ struct typeSetter
     cache_avaliable = false;
   }
 
-  void DrawContent( u32 start = 0u, u32 charnum = UINT32_MAX )
+  void DrawContent( u64 start = 0u, u64 charnum = UINT32_MAX )
   {
     charnum = charnum > content.size() ? content.size() : charnum;
     if ( !cache_avaliable ) {
       u32 w_current { 0u };
       u32 y_offset { 0u };
-      for ( u32 i = start; i < start + charnum; i++ ) {
+      for ( u64 i = start; i < start + charnum; i++ ) {
         if ( content[i] == '\n' ) {
           w_current = 0;
           y_offset += charConfig.getMaxcharheight() + config.ygap;
@@ -134,10 +130,10 @@ struct typeSetter
                     top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ) );
         w_current += bitmap->width + config.xgap;
       }
-      if ( charnum == static_cast<u32>( content.size() ) )
+      if ( charnum == content.size() )
         cache_avaliable = true;
     } else {
-      for ( u32 i = start; i < start + charnum; i++ ) {
+      for ( u64 i = start; i < start + charnum; i++ ) {
         if ( content[i] == '\n' ) {
           continue;
         }

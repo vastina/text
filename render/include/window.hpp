@@ -24,10 +24,6 @@ private:
 public:
   Player( const char* title, u32 w = 800, u32 h = 600 ) : width( w ), height( h )
   {
-    if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-      std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-      throw std::runtime_error( "sdl" );
-    }
     wd = SDL_CreateWindow( title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
     if ( wd == nullptr ) {
       std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -41,20 +37,11 @@ public:
       SDL_Quit();
       throw std::runtime_error( "sdl" );
     }
-    if ( !( IMG_Init( IMG_INIT_PNG ) & IMG_INIT_PNG ) ) {
-      std::cerr << "SDL_image could not initialize! IMG_Error: " << IMG_GetError() << std::endl;
-      SDL_DestroyRenderer( renderer );
-      SDL_DestroyWindow( wd );
-      SDL_Quit();
-      throw std::runtime_error( "sdl" );
-    }
   }
   ~Player()
   {
-    IMG_Quit();
     SDL_DestroyRenderer( renderer );
     SDL_DestroyWindow( wd );
-    SDL_Quit();
   }
 
   void Render( const DrawBoard& b )

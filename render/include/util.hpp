@@ -63,4 +63,48 @@ static inline std::string SearchTTf()
   //   throw std::runtime_error( "no ttf found" );
 }
 
+#include <SDL.h>
+#include <SDL_image.h>
+#include <iostream>
+
+namespace vas {
+static int dpiX;
+static int dpiY;
+}
+
+class BeforeStart
+{
+public:
+  BeforeStart()
+  {
+    if ( !init() ) {
+      std::cerr.flush();
+      std::exit( 1 );
+    }
+  }
+  ~BeforeStart()
+  {
+    IMG_Quit();
+    SDL_Quit();
+  }
+
+private:
+  static inline bool init()
+  {
+    GetScreenDPI( vas::dpiX, vas::dpiY );
+    if ( vas::dpiX == -1 || vas::dpiY == -1 )
+      return false;
+    if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+      std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+      return false;
+    }
+    if ( !( IMG_Init( IMG_INIT_PNG ) & IMG_INIT_PNG ) ) {
+      std::cerr << "SDL_image could not initialize! IMG_Error: " << IMG_GetError() << std::endl;
+      return false;
+    }
+
+    return true;
+  }
+};
+
 #endif
