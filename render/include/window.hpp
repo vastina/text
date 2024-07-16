@@ -145,14 +145,14 @@ struct mousehandle
     down = false;
     if ( e.button.x < 0 ) {
       xcur = 0;
-    } else if ( e.button.x > static_cast<int>(b.pic.width) ) {
+    } else if ( e.button.x > static_cast<int>( b.pic.width ) ) {
       xcur = b.pic.width;
     } else {
       xcur = e.button.x;
     }
     if ( e.button.y < 0 ) {
       ycur = 0;
-    } else if ( e.button.y > static_cast<int>(b.pic.height) ) {
+    } else if ( e.button.y > static_cast<int>( b.pic.height ) ) {
       ycur = b.pic.height;
     } else {
       ycur = e.button.y;

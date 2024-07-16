@@ -8,35 +8,46 @@ int main( int argc, char* argv[] )
   auto player { vas::Player( argc > 1 ? argv[1] : argv[0], ww, hh ) };
   vas::DrawBoard b { player.CreateTexture(), ww, hh };
 
-  vas::typeSetter ts { "abcdefghijklmnopqrstuvwxyz"
-                       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                       "1234567890"
+  vas::typeSetter ts { "abcdefghijklmnopqrstuvwxyz\n"
+                       "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
+                       "1234567890\n"
                        "~`!@#$%^&*()_-+={}[]:;\"'<,>.?/|\\",
                        b };
   ts.setRect( 100, 100, ww - 200, hh - 200 );
+  vas::typeSetter load { "====================================", b };
+  load.setRect( 100, hh - 200, ww - 200, 200 );
+  load.config.ygap = 7;
 
   vas::mousehandle m { b };
   player.addhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
-  player.addhandle( SDL_MOUSEBUTTONUP, [&m, &ts]( const SDL_Event& e ) {
+  player.addhandle( SDL_MOUSEBUTTONUP, [&m, &ts, &load]( const SDL_Event& e ) {
     m.DealUp( e );
     std::string inRect {};
-    for ( u32 i = 0; i < ts.content.size(); i++ ) {
-      if ( ts.charinRect( i, m.xcur, m.ycur, m.xfirst, m.yfirst ) ) {
+    u32 length = static_cast<u32>( ts.content.size() );
+    for ( u32 i = 0; i < length; i++ )
+      if ( ts.charinRect( i, m.xcur, m.ycur, m.xfirst, m.yfirst ) )
         inRect.push_back( ts.content[i] );
-      }
-    }
+    length = static_cast<u32>( load.content.size() );
+    for ( u32 i = 0; i < length; i++ )
+      if ( load.charinRect( i, m.xcur, m.ycur, m.xfirst, m.yfirst ) )
+        inRect.push_back( load.content[i] );
+
     std::cout << inRect << std::endl;
-    SDL_SetClipboardText( inRect.data() );
+    if ( !inRect.empty() )
+      SDL_SetClipboardText( inRect.data() );
   } );
   player.addhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
 
+  u32 chars = 0;
   while ( !player.ShouldQuit() ) {
+    load.DrawContent( 0, chars );
+    chars = ( chars + 1 ) % ( load.content.size() + 1 );
     ts.DrawContent();
+
     player.HandleEvent();
     player.Render( b );
 
-    player.Clear();
-    std::fill( b.drawable.begin(), b.drawable.end(), true );
+    b.ClearBuffer();
   }
 
   return 0;

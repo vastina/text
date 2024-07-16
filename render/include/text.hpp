@@ -111,24 +111,45 @@ struct typeSetter
   void DrawContent( u32 start = 0u, u32 charnum = UINT32_MAX )
   {
     charnum = charnum > content.size() ? content.size() : charnum;
-    u32 w_current { 0u };
-    u32 y_offset { 0u };
-    for ( u32 i = start; i < charnum; i++ ) {
-      if ( w_current > width ) {
-        w_current = 0;
-        y_offset += charConfig.getMaxcharheight() + config.ygap;
-      }
-      const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
-      if ( !cache_avaliable )
+    if ( !cache_avaliable ) {
+      u32 w_current { 0u };
+      u32 y_offset { 0u };
+      for ( u32 i = start; i < start + charnum; i++ ) {
+        if ( content[i] == '\n' ) {
+          w_current = 0;
+          y_offset += charConfig.getMaxcharheight() + config.ygap;
+          continue;
+        }
+        if ( w_current > width ) {
+          w_current = 0;
+          y_offset += charConfig.getMaxcharheight() + config.ygap;
+        } 
+        const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
+
         poscache[i] = { left + w_current, top + y_offset };
-      b.DrawChar( bitmap->width,
-                  bitmap->rows,
-                  bitmap->buffer,
-                  left + w_current,
-                  top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ) );
-      w_current += bitmap->width + config.xgap;
+        b.DrawChar( bitmap->width,
+                    bitmap->rows,
+                    bitmap->buffer,
+                    left + w_current,
+                    top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ) );
+        w_current += bitmap->width + config.xgap;
+      }
+      if ( charnum == static_cast<u32>( content.size() ) )
+        cache_avaliable = true;
+    } else {
+      for ( u32 i = start; i < start + charnum; i++ ) {
+        if ( content[i] == '\n' ) {
+          continue;
+        }
+        const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
+
+        b.DrawChar( bitmap->width,
+                    bitmap->rows,
+                    bitmap->buffer,
+                    poscache[i].x,
+                    poscache[i].y + ( charConfig.getMaxcharheight() - bitmap->rows ) );
+      }
     }
-    cache_avaliable = true;
   }
 
   bool charinRect( u32 index, u32 x1, u32 y1, u32 x2, u32 y2 )
