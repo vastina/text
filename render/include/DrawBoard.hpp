@@ -22,8 +22,11 @@ struct pixeler
   ~pixeler() { SDL_DestroyTexture( texture ); }
   void setIndex( u32 x, u32 y, RGB color ) const
   {
+    if ( x > width || y > height )
+      return;
     pixels[y * width + x] = ( color.r << 16 ) | ( color.g << 8 ) | color.b;
   }
+  void ClearBuffer() const { std::fill( pixels, pixels + width * height, 0 ); }
 };
 
 struct DrawBoard
@@ -33,6 +36,11 @@ struct DrawBoard
   DrawBoard( SDL_Texture* texture, u32 width, u32 height )
     : pic { texture, width, height }, drawable( width * height, true )
   {}
+  void ClearBuffer()
+  {
+    std::fill( drawable.begin(), drawable.end(), true );
+    pic.ClearBuffer();
+  }
   void DrawChar( const u32 width, const u32 height, const u8* buffer, const u32 xoffst, const u32 yoffst )
   {
     for ( u32 y = 0; y < height; y++ ) {
@@ -45,8 +53,6 @@ struct DrawBoard
   }
   void setIndex( u32 x, u32 y, RGB color )
   {
-    if ( x > pic.width || y > pic.height )
-      return;
     if ( drawable[x + y * pic.width] ) {
       pic.setIndex( x, y, color );
       drawable[x + y * pic.width] = false;
@@ -54,18 +60,11 @@ struct DrawBoard
   }
   void setIndex_Coverable( u32 x, u32 y, RGB color )
   {
-    if ( x > pic.width || y > pic.height )
-      return;
     if ( drawable[x + y * pic.width] ) {
       pic.setIndex( x, y, color );
     }
   }
-  void setIndex_force( u32 x, u32 y, RGB color ) const
-  {
-    if ( x > pic.width || y > pic.height )
-      return;
-    pic.setIndex( x, y, color );
-  }
+  void setIndex_force( u32 x, u32 y, RGB color ) const { pic.setIndex( x, y, color ); }
   void DraeRect( int x1, int y1, int x2, int y2, RGB color )
   {
     const int dx = x1 > x2 ? -1 : 1;
