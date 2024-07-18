@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <functional>
+#include <utility>
 
 #include "vasdef.hpp"
 #include "DrawBoard.hpp"
@@ -81,10 +82,16 @@ private:
   std::unordered_map<u32, std::function<void( const SDL_Event& )>> handles {
     { SDL_QUIT, [this]( const SDL_Event& ) { quit = true; } } };
 
+  std::vector<std::pair<std::function<bool()>, std::function<void()>>> statehandles { 0 };
+
 public:
   void addhandle( u32 EventType, const std::function<void( const SDL_Event& )>& handle )
   {
     handles.insert_or_assign( EventType, handle );
+  }
+  void addStatehandle( const std::function<bool()>& InStatejudge, const std::function<void()>& handle )
+  {
+    statehandles.push_back( std::make_pair( InStatejudge, handle ) );
   }
   void HandleEvent()
   {
@@ -95,6 +102,13 @@ public:
       }
     }
   }
+  void HandleState()
+  {
+    for ( const auto& [j, h] : statehandles ) {
+      if ( j() )
+        h();
+    }
+  }
   inline bool ShouldQuit() const { return quit; }
 };
 
@@ -103,6 +117,7 @@ struct mousehandle
   vas::DrawBoard& b;
 
   bool down { false };
+  bool moved_last_frame { false };
   int xfirst { 0 };
   int xcur { 0 };
   int yfirst { 0 };
@@ -140,17 +155,20 @@ struct mousehandle
 
   void DealMove( const SDL_Event& e )
   {
-    if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
-         || static_cast<u64>( e.button.y ) > b.pic.height ) {
-      return;
-    }
     if ( down ) {
+      if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
+           || static_cast<u64>( e.button.y ) > b.pic.height ) {
+        return;
+      }
       b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
       xcur = e.button.x;
       ycur = e.button.y;
       b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
     }
+    moved_last_frame = true;
   }
+  void DealDownState() { b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } ); }
+  void freshState() { moved_last_frame = false; }
 };
 
 }

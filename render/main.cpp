@@ -22,6 +22,7 @@ int main( int argc, char* argv[] )
 
     vas::typeSetter load { "====================================", b };
     load.setRect( 100, hh - 200, ww - 200, 200 );
+    load.config.ygap = 12;
     load.LoadContent();
 
     vas::typeSetter Title { "这是标题", b, {}, "simhei.ttf" };
@@ -49,6 +50,7 @@ int main( int argc, char* argv[] )
         SDL_SetClipboardText( str.data() );
     } );
     player.addhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
+    player.addStatehandle( [&m] { return !m.moved_last_frame && m.down; }, [&m] { m.DealDownState(); } );
 
     u32 chars = 0;
     u32 count = 0;
@@ -64,7 +66,9 @@ int main( int argc, char* argv[] )
       Title.DrawContent();
 
       player.HandleEvent();
+      player.HandleState();
       player.Render( b );
+      m.freshState();
       {
         auto end { std::chrono::high_resolution_clock::now() };
         if ( end - start >= 1s ) {
