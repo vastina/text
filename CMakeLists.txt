@@ -12,12 +12,12 @@ if(WIN32)
   include_directories("D:\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.40.33807\\include") # clangd cat't find it automatically
 endif()
 
+# this one is PTHONY
 project(text-render)
-if(LINUX)
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
+set(LIBBASE base)
+project(${LIBBASE})
+set(MAINPROJECT render)
+project(${MAINPROJECT})
 
 #find_packages#########################################################################################
 ###############
@@ -73,10 +73,29 @@ endif()
 ###############
 #######################################################################################################
 
-set(LIBBASE base)
 set(BASE_INCLUDE "${CMAKE_SOURCE_DIR}/${LIBBASE}/include")
 file(GLOB SOURCES_BASE "${CMAKE_SOURCE_DIR}/${LIBBASE}/*.cpp")
 add_library(${LIBBASE} STATIC ${SOURCES_BASE})
+
+set(RENDER_INCLUDE "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/include")
+file(GLOB SOURCES_RENDER "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/*.cpp")
+add_executable(render ${SOURCES_RENDER})
+
+if(WIN32)
+  if (CMAKE_VERSION VERSION_GREATER 3.12)
+    set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
+    set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)  
+  endif()
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od")
+elseif(LINUX)
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+endif()
+
 if(WIN32)
   target_include_directories(${LIBBASE} PRIVATE ${BASE_INCLUDE} ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
   target_link_libraries(${LIBBASE} PRIVATE zlibstatic)
@@ -84,11 +103,6 @@ elseif(LINUX)
   target_include_directories(${LIBBASE} PRIVATE ${BASE_INCLUDE} ${ZLIB_INCLUDE_DIRS})
   target_link_libraries(${LIBBASE} PRIVATE ${ZLIB_LIBRARIES})
 endif()
-
-set(MAINPROJECT render)
-set(RENDER_INCLUDE "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/include")
-file(GLOB SOURCES_RENDER "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/*.cpp")
-add_executable(render ${SOURCES_RENDER})
 
 if(WIN32)
   target_include_directories(${MAINPROJECT} PRIVATE
@@ -116,14 +130,6 @@ elseif(LINUX)
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
   )
-endif()
-
-
-if(WIN32)
-  if (CMAKE_VERSION VERSION_GREATER 3.12)
-    set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
-    set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
-  endif()
 endif()
 
 if(WIN32)
