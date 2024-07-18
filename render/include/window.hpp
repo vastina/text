@@ -127,6 +127,8 @@ struct mousehandle
     down = true;
     xfirst = e.button.x;
     yfirst = e.button.y;
+    xcur = xfirst;
+    ycur = yfirst;
     // if ( down ) {
     //   // error, if down, why there is another down
     // } else {
