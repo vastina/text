@@ -50,6 +50,8 @@ endif()
 if(WIN32)  
   set(utfcpp_INCLUDE_DIR "${env}/utfcpp/source")
   # https://github.com/nemtrif/utfcpp.git
+elseif(LINUX)
+  set(utfcpp_INCLUDE_DIR "/usr/include/utf8cpp")
 endif()
 
 # sdl2
@@ -106,6 +108,7 @@ elseif(LINUX)
     ${BASE_INCLUDE} ${RENDER_INCLUDE}
     ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
     ${X11_INCLUDE_DIR}
+    ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
     ${LIBBASE}

@@ -3,7 +3,6 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <utf8.h>
 
 #include <iostream>
 #include <unordered_map>
@@ -188,10 +187,10 @@ struct typeSetter
     if ( !cache_avaliable )
       return false;
     auto* bitmap = charConfig.LoadCharBitmap( content[index] );
-    u32 left_top_x = min( x1, x2 );
-    u32 left_top_y = min( y1, y2 );
-    u32 right_bottom_x = max( x1, x2 );
-    u32 right_bottom_y = max( y1, y2 );
+    u32 left_top_x = std::min( x1, x2 );
+    u32 left_top_y = std::min( y1, y2 );
+    u32 right_bottom_x = std::max( x1, x2 );
+    u32 right_bottom_y = std::max( y1, y2 );
     return ( left_top_x <= poscache.at( index ).x ) && ( left_top_y <= poscache.at( index ).y )
            && ( right_bottom_x >= poscache.at( index ).x + bitmap->width )
            && ( right_bottom_y >= poscache.at( index ).y + bitmap->rows );

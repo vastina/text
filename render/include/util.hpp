@@ -7,6 +7,7 @@
 #error "no support on apple"
 #else
 #include <X11/Xlib.h>
+#include <iostream>
 #endif
 inline static void GetScreenDPI( int& dpiX, int& dpiY )
 {
@@ -106,5 +107,18 @@ private:
     return true;
   }
 };
+
+#ifdef _WIN32
+#include <utf8.h>
+#elif __linux__
+// there is another pakage called libutf8.h-dev, so use utf8cpp/utf8.h instead of utf8.h
+#include <utf8cpp/utf8.h>
+#endif
+
+#ifdef _WIN32
+  #undef min
+  #undef max
+  // who define this? MSVC or freetype or SDL2? fuck you
+#endif
 
 #endif
