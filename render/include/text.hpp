@@ -94,6 +94,7 @@ struct typeSetter
     i32 char_height { 32 * 48 };
     // ...
   } config {};
+  RGB background { 0x22, 0x22, 0x22 };
   std::vector<u32> content;
   //  std::string content;
   struct pos
@@ -122,6 +123,34 @@ struct typeSetter
     height = h;
     cache_avaliable = false;
   }
+  // calculate height width and char_pos
+  void calculateContent()
+  {
+    const auto length { content.size() };
+    u32 w_current { 0u };
+    u32 w_max { 0u };
+    u32 y_offset { 0u };
+    for ( u64 i = 0; i < length; i++ ) {
+      if ( content[i] == '\n' ) {
+        w_max = std::max( w_max, w_current );
+        w_current = 0;
+        y_offset += charConfig.getMaxcharheight() + config.ygap;
+        continue;
+      }
+      if ( w_current > width ) {
+        w_max = std::max( w_max, w_current );
+        w_current = 0;
+        y_offset += charConfig.getMaxcharheight() + config.ygap;
+      }
+      const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
+      poscache[i] = { left + w_current, top + y_offset };
+      w_current += bitmap->width + config.xgap;
+    }
+    w_max = std::max( w_max, w_current );
+    height = y_offset + charConfig.getMaxcharheight() + config.ygap;
+    width = w_max;
+    cache_avaliable = true;
+  }
 
   void LoadContent()
   {
@@ -140,7 +169,11 @@ struct typeSetter
 
   void DrawContent( u64 start = 0u, u64 charnum = UINT32_MAX )
   {
+    FillBackgroud();
+
     charnum = charnum > content.size() ? content.size() : charnum;
+    // float rgbmax =std::max({r,g,b});
+    // Vec3f scale {rgbmax/background.r, rgbmax/background.g, rgbmax/background.b};
     if ( !cache_avaliable ) {
       u32 w_current { 0u };
       u32 y_offset { 0u };
@@ -161,7 +194,8 @@ struct typeSetter
                     bitmap->rows,
                     bitmap->buffer,
                     left + w_current,
-                    top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ) );
+                    top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ),
+                    background );
         w_current += bitmap->width + config.xgap;
       }
       if ( charnum == content.size() )
@@ -177,8 +211,15 @@ struct typeSetter
                     bitmap->rows,
                     bitmap->buffer,
                     poscache[i].x,
-                    poscache[i].y + ( charConfig.getMaxcharheight() - bitmap->rows ) );
+                    poscache[i].y + ( charConfig.getMaxcharheight() - bitmap->rows ),
+                    background );
       }
+    }
+  }
+  void FillBackgroud() const
+  {
+    for ( u32 y = top; y <= top + height; y++ ) {
+      b.pic.setLine( y, left, left + width, background );
     }
   }
 
@@ -199,16 +240,43 @@ struct typeSetter
 
 struct DomNode
 {
-  typeSetter ts;
+  typeSetter* ts { nullptr };
   std::vector<DomNode*> children;
+
+  static inline void DeleteTree( DomNode* root )
+  {
+    for ( auto& child : root->children ) {
+      DeleteTree( child );
+    }
+    delete root->ts;
+    delete root;
+  }
 };
 class DomTree
 {
 private:
-  DomNode* root;
+  DomNode* root { nullptr };
 
 public:
-  void LoadAll();
+  DomTree() : root { new DomNode { nullptr, {} } } {}
+  ~DomTree()
+  {
+    if ( root )
+      DomNode::DeleteTree( root );
+  }
+
+private:
+  void LoadAll( DomNode* node )
+  {
+    if ( node->ts )
+      node->ts->LoadContent();
+    for ( const auto& child : node->children ) {
+      LoadAll( child );
+    }
+  }
+
+public:
+  void LoadAll() { LoadAll( root ); }
 };
 
 };

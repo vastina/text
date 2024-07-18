@@ -3,12 +3,12 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#elif __APPLE__
-#error "no support on apple"
-#else
+#elif __linux__
 #include <X11/Xlib.h>
 #include <iostream>
 #endif
+
+namespace vas {
 inline static void GetScreenDPI( int& dpiX, int& dpiY )
 {
 #ifdef _WIN32
@@ -37,18 +37,22 @@ inline static void GetScreenDPI( int& dpiX, int& dpiY )
 #endif
 }
 
+}
 #include <filesystem>
 #include <string>
 
+namespace vas {
 static inline std::string SearchTTf()
 {
-
+  std::string path {};
 #ifdef _WIN32
-  return "C:\\Windows\\Fonts\\Deng.ttf";
+  path = "C:\\Windows\\Fonts\\Deng.ttf";
 #elif __linux__
-  return "/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf";
+  path = "/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf";
 #endif
-  //   std::string search_path {};
+  if ( !std::filesystem::exists( path ) )
+    throw std::runtime_error( "no ttf found" );
+  return path;
   // #ifdef _WIN32
   //   search_path = "C:\\Windows\\Fonts";
   // #elif __linux__
@@ -63,6 +67,7 @@ static inline std::string SearchTTf()
   //   }
   //   throw std::runtime_error( "no ttf found" );
 }
+}
 
 #include <SDL.h>
 // #include <SDL_image.h>
@@ -71,7 +76,6 @@ static inline std::string SearchTTf()
 namespace vas {
 static int dpiX;
 static int dpiY;
-}
 
 class BeforeStart
 {
@@ -107,6 +111,32 @@ private:
     return true;
   }
 };
+}
+
+#include "vasdef.hpp"
+namespace vas {
+static inline double calculateLuminance( RGB color )
+{
+  return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+}
+static inline double calculateContrastRatio( RGB color1, RGB color2 )
+{
+  double luminance1 = calculateLuminance( color1 );
+  double luminance2 = calculateLuminance( color2 );
+  if ( luminance1 < luminance2 ) {
+    std::swap( luminance1, luminance2 );
+  }
+  return ( luminance1 + 0.05 ) / ( luminance2 + 0.05 );
+}
+static inline RGB getHighContrastColor( RGB backgroundColor )
+{
+  // nothing special here
+  if ( calculateLuminance( backgroundColor ) > 128 ) {
+    return { 0, 0, 0 };
+  }
+  return { 0xff, 0xff, 0xff };
+}
+}
 
 #ifdef _WIN32
 #include <utf8.h>

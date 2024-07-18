@@ -2,7 +2,7 @@
 #include "window.hpp"
 
 using namespace std::chrono_literals;
-const static BeforeStart bs {};
+const static vas::BeforeStart bs {};
 int main( int argc, char* argv[] )
 {
   try {
@@ -17,18 +17,23 @@ int main( int argc, char* argv[] )
                          "~`!@#$%^&*()_-+={}[]:;\"'<,>.?/|\\\n"
                          "你好，世界！",
                          b };
-    ts.setRect( 100, 100, ww - 200, hh - 200 );
+    ts.setRect( 100, 100, ww - 200, hh - 350 );
+    ts.background = { 0x70, 0x80, 0x90 };
     ts.LoadContent();
+    // ts.calculateContent();
 
     vas::typeSetter load { "====================================", b };
     load.setRect( 100, hh - 200, ww - 200, 200 );
     load.config.ygap = 12;
     load.LoadContent();
+    load.calculateContent();
 
     vas::typeSetter Title { "这是标题", b, {}, "simhei.ttf" };
     Title.setRect( 300, 20, ww - 400, 70 );
     Title.config.char_height *= 2;
+    Title.background = { 0xff, 0xa0, 0x7a };
     Title.LoadContent();
+    Title.calculateContent();
 
     vas::mousehandle m { b };
     player.addhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
@@ -45,9 +50,10 @@ int main( int argc, char* argv[] )
           inRect.push_back( load.content[i] );
 
       auto str = vas::Text::utf32_to_utf8( inRect );
-      std::cout << str << '\n';
-      if ( !str.empty() )
+      if ( !str.empty() ) {
+        std::cout << str << '\n';
         SDL_SetClipboardText( str.data() );
+      }
     } );
     player.addhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
     player.addStatehandle( [&m] { return !m.moved_last_frame && m.down; }, [&m] { m.DealDownState(); } );
