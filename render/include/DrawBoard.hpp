@@ -33,6 +33,9 @@ struct DrawBoard
 {
   pixeler pic;
   std::vector<bool> drawable;
+  struct Config {
+    RGB background {0x22, 0x22, 0x22};
+  } config {};
   DrawBoard( SDL_Texture* texture, u32 width, u32 height )
     : pic { texture, width, height }, drawable( width * height, true )
   {}
@@ -46,8 +49,8 @@ struct DrawBoard
     for ( u32 y = 0; y < height; y++ ) {
       for ( u32 x = 0; x < width; x++ ) {
         auto val { buffer[y * width + x] };
-        //      if(val > 16)
-        setIndex( x + xoffst, y + yoffst, { val, val, val } );
+        if(val > 0)
+          setIndex( x + xoffst, y + yoffst, { val, val, val } );
       }
     }
   }
@@ -75,7 +78,7 @@ struct DrawBoard
       }
     }
   }
-  void DraeRect_Coverable( int x1, int y1, int x2, int y2, RGB color )
+  void DrawRect_Coverable( int x1, int y1, int x2, int y2, RGB color )
   {
     const int dx = x1 > x2 ? -1 : 1;
     const int dy = y1 > y2 ? -1 : 1;
@@ -95,9 +98,9 @@ struct DrawBoard
       }
     }
   }
-  void Clear( int x1, int y1, int x2, int y2 ) { DraeRect( x1, y1, x2, y2, { 0, 0, 0 } ); }
-  void Clear_Coverable( int x1, int y1, int x2, int y2 ) { DraeRect_Coverable( x1, y1, x2, y2, { 0, 0, 0 } ); }
-  void Clear_force( int x1, int y1, int x2, int y2 ) const { Drawrect_force( x1, y1, x2, y2, { 0, 0, 0 } ); }
+  void Clear( int x1, int y1, int x2, int y2 ) { DraeRect( x1, y1, x2, y2, config.background ); }
+  void Clear_Coverable( int x1, int y1, int x2, int y2 ) { DrawRect_Coverable( x1, y1, x2, y2, config.background  ); }
+  void Clear_force( int x1, int y1, int x2, int y2 ) const { Drawrect_force( x1, y1, x2, y2, config.background  ); }
 };
 
 }

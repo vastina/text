@@ -20,7 +20,7 @@ inline static void GetScreenDPI( int& dpiX, int& dpiY )
 #elif __linux__
   Display* display = XOpenDisplay( NULL );
   if ( display == NULL ) {
-    std::cerr << "Cannot open display" << std::endl;
+    std::cerr << "Cannot open display" << '\n';
     dpiX = dpiY = -1; // Return invalid DPI values
     return;
   }
@@ -43,7 +43,7 @@ static inline std::string SearchTTf()
 {
 
 #ifdef _WIN32
-  return "C:\\Windows\\Fonts\\arial.ttf";
+  return "C:\\Windows\\Fonts\\Deng.ttf";
 #elif __linux__
   return "/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf";
 #endif
@@ -64,7 +64,7 @@ static inline std::string SearchTTf()
 }
 
 #include <SDL.h>
-#include <SDL_image.h>
+// #include <SDL_image.h>
 #include <iostream>
 
 namespace vas {
@@ -84,7 +84,7 @@ public:
   }
   ~BeforeStart()
   {
-    IMG_Quit();
+    // IMG_Quit();
     SDL_Quit();
   }
 
@@ -95,13 +95,13 @@ private:
     if ( vas::dpiX == -1 || vas::dpiY == -1 )
       return false;
     if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-      std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+      std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << '\n';
       return false;
     }
-    if ( !( IMG_Init( IMG_INIT_PNG ) & IMG_INIT_PNG ) ) {
-      std::cerr << "SDL_image could not initialize! IMG_Error: " << IMG_GetError() << std::endl;
-      return false;
-    }
+    // if ( !( IMG_Init( IMG_INIT_PNG ) & IMG_INIT_PNG ) ) {
+    //   std::cerr << "SDL_image could not initialize! IMG_Error: " << IMG_GetError() << '\n';
+    //   return false;
+    // }
 
     return true;
   }

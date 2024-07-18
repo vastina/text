@@ -47,7 +47,7 @@ public:
       font_path = std::move( ttfpath );
     }
     if ( FT_Init_FreeType( &library ) ) {
-      std::cerr << "Could not initialize FreeType library" << std::endl;
+      std::cerr << "Could not initialize FreeType library" << '\n';
       throw std::runtime_error( "freetype" );
     }
   }
@@ -62,13 +62,13 @@ public:
   {
     FT_Face face;
     if ( FT_New_Face( library, font_path.data(), 0, &face ) ) {
-      std::cerr << "Could not open font" << std::endl;
+      std::cerr << "Could not open font" << '\n';
       FT_Done_FreeType( library );
       return;
     }
     FT_Set_Char_Size( face, char_width, char_height, dpiX, dpiY );
     if ( FT_Load_Char( face, char_code, FT_LOAD_RENDER ) ) {
-      std::cerr << "Could not load character" << char_code << std::endl;
+      std::cerr << "Could not load character" << char_code << '\n';
       FT_Done_Face( face );
       FT_Done_FreeType( library );
       return;
@@ -91,9 +91,10 @@ struct typeSetter
   {
     u32 xgap { 7 };
     u32 ygap { 0 };
+    i32 char_width { 0 };
     i32 char_height { 32 * 48 };
     // ...
-  } config;
+  } config {};
   std::vector<u32> content;
   //  std::string content;
   struct pos
@@ -104,15 +105,15 @@ struct typeSetter
   bool cache_avaliable { false };
   std::vector<pos> poscache;
   DrawBoard& b;
-  Text charConfig { "Deng.ttf" }; // 等线,form C:\\Windows\\Fonts
+  Text charConfig;
 
-  typeSetter( const std::string& text, vas::DrawBoard& board ) : poscache( text.size() ), b { board }
-  {
-    content = Text::utf8_to_utf32( text );
-    for ( const auto ch : content ) {
-      charConfig.AddChar( ch, 0, config.char_height );
-    }
-  }
+  // Deng.ttf, 等线, form C:\\Windows\\Fonts
+  typeSetter( const std::string& text,
+              vas::DrawBoard& board,
+              typeSetter::Config Config = { 7, 0, 0, 32 * 48 },
+              const std::string& FontPath = "Deng.ttf" )
+    : config( Config ), content { Text::utf8_to_utf32( text ) }, b { board }, charConfig { FontPath }
+  {}
 
   void setRect( int l, int t, int w, int h )
   {
@@ -121,6 +122,21 @@ struct typeSetter
     width = w;
     height = h;
     cache_avaliable = false;
+  }
+
+  void LoadContent()
+  {
+    for ( const auto ch : content ) {
+      charConfig.AddChar( ch, config.char_width, config.char_height );
+    }
+    poscache.resize( content.size() );
+  }
+  template<typename func> // a concept need here
+  void ChangeContent( const func& change )
+  {
+    change( content );
+    cache_avaliable = false;
+    // LoadContent();
   }
 
   void DrawContent( u64 start = 0u, u64 charnum = UINT32_MAX )
@@ -180,6 +196,20 @@ struct typeSetter
            && ( right_bottom_x >= poscache.at( index ).x + bitmap->width )
            && ( right_bottom_y >= poscache.at( index ).y + bitmap->rows );
   }
+};
+
+struct DomNode
+{
+  typeSetter ts;
+  std::vector<DomNode*> children;
+};
+class DomTree
+{
+private:
+  DomNode* root;
+
+public:
+  void LoadAll();
 };
 
 };

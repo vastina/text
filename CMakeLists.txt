@@ -58,11 +58,11 @@ if(WIN32)
 endif()
 find_package(SDL2 REQUIRED)
 
-# sdl2_image
-if(WIN32)
-  set(SDL2_image_ROOT "${env}/SDL2_image/2.8.2")
-endif()
-find_package(SDL2_image REQUIRED)
+# # sdl2_image
+# if(WIN32)
+#   set(SDL2_image_ROOT "${env}/SDL2_image/2.8.2")
+# endif()
+# find_package(SDL2_image REQUIRED)
 
 # x11
 if(LINUX)
@@ -93,23 +93,23 @@ if(WIN32)
     ${BASE_INCLUDE} ${RENDER_INCLUDE}
     ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} 
     ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
-    ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
     ${LIBBASE}
-    ${SDL2_LIBRARIES} SDL2_image::SDL2_image 
+    ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     freetype
   )
 elseif(LINUX)
   target_include_directories(${MAINPROJECT} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE}
-    ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
     ${X11_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
     ${LIBBASE}
-    ${SDL2_LIBRARIES} SDL2_image::SDL2_image 
+    ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
   )

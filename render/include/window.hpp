@@ -2,7 +2,7 @@
 #define _SDL_CXX_H_
 
 #include <SDL.h>
-#include <SDL_image.h>
+// #include <SDL_image.h>
 
 #include <iostream>
 #include <functional>
@@ -26,15 +26,13 @@ public:
   {
     wd = SDL_CreateWindow( title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
     if ( wd == nullptr ) {
-      std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-      SDL_Quit();
+      std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << '\n';
       throw std::runtime_error( "sdl" );
     }
     renderer = SDL_CreateRenderer( wd, -1, SDL_RENDERER_ACCELERATED );
     if ( renderer == nullptr ) {
-      std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+      std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << '\n';
       SDL_DestroyWindow( wd );
-      SDL_Quit();
       throw std::runtime_error( "sdl" );
     }
   }
@@ -58,32 +56,24 @@ public:
   {
     return SDL_CreateTexture( renderer, format, access, width, height );
   }
-  void LoadImg( const char* filename )
-  {
-    SDL_Surface* loadedSurface = IMG_Load( filename );
-    if ( loadedSurface == nullptr ) {
-      std::cerr << "Unable to load image! SDL_image Error: " << IMG_GetError() << std::endl;
-      IMG_Quit();
-      SDL_DestroyRenderer( renderer );
-      SDL_DestroyWindow( wd );
-      SDL_Quit();
-      throw std::runtime_error( "sdl_img" );
-    }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface( renderer, loadedSurface );
-    if ( texture == nullptr ) {
-      std::cerr << "Unable to create texture from image! SDL Error: " << SDL_GetError() << std::endl;
-      IMG_Quit();
-      SDL_DestroyRenderer( renderer );
-      SDL_DestroyWindow( wd );
-      SDL_Quit();
-      throw std::runtime_error( "sdl_img" );
-    }
-    SDL_RenderCopy( renderer, texture, nullptr, nullptr );
-    SDL_RenderPresent( renderer );
+  // void LoadImg( const char* filename )
+  // {
+  //   SDL_Surface* loadedSurface = IMG_Load( filename );
+  //   if ( loadedSurface == nullptr ) {
+  //     std::cerr << "Unable to load image! SDL_image Error: " << IMG_GetError() << '\n';
+  //     throw std::runtime_error( "sdl_img" );
+  //   }
+  //   SDL_Texture* texture = SDL_CreateTextureFromSurface( renderer, loadedSurface );
+  //   if ( texture == nullptr ) {
+  //     std::cerr << "Unable to create texture from image! SDL Error: " << SDL_GetError() << '\n';
+  //     throw std::runtime_error( "sdl_img" );
+  //   }
+  //   SDL_RenderCopy( renderer, texture, nullptr, nullptr );
+  //   SDL_RenderPresent( renderer );
 
-    SDL_FreeSurface( loadedSurface );
-    SDL_DestroyTexture( texture );
-  }
+  //   SDL_FreeSurface( loadedSurface );
+  //   SDL_DestroyTexture( texture );
+  // }
   void Clear() { SDL_RenderClear( renderer ); }
   // todo
 
@@ -158,7 +148,7 @@ struct mousehandle
       b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
       xcur = e.button.x;
       ycur = e.button.y;
-      b.DraeRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
+      b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
     }
   }
 };
