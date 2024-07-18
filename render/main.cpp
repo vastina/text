@@ -52,29 +52,28 @@ int main( int argc, char* argv[] )
 
     u32 chars = 0;
     u32 count = 0;
-    // u32 frame = 0;
-    // auto start {std::chrono::high_resolution_clock::now()};
+    u32 frame = 0;
+    auto start { std::chrono::high_resolution_clock::now() };
     while ( !player.ShouldQuit() ) {
-      b.Clear_force(0, 0, ww, hh);
+      b.ClearBuffer();
+
       load.DrawContent( 0, chars );
       chars = ( chars + ( count = ( count + 1 ) % 64 ) / 63 ) % ( load.content.size() + 1 );
+
       ts.DrawContent();
       Title.DrawContent();
 
       player.HandleEvent();
       player.Render( b );
-
-      b.ClearBuffer();
-
-      // {
-      //   auto end {std::chrono::high_resolution_clock::now()};
-      //   if(end - start >= 1s){
-      //     std::cout << "FPS: " << frame << '\n';
-      //     frame = 0;
-      //     start = end;
-      //   }
-      //   frame++;
-      // }
+      {
+        auto end { std::chrono::high_resolution_clock::now() };
+        if ( end - start >= 1s ) {
+          std::cout << "FPS: " << frame << '\n';
+          frame = 0;
+          start = end;
+        }
+        frame++;
+      }
     }
   } catch ( const std::exception& e ) {
     std::cerr << e.what() << '\n';
