@@ -185,6 +185,7 @@ struct typeSetter
       u32 w_current { 0u };
       u32 y_offset { 0u };
       for ( u64 i = start; i < start + charnum; i++ ) {
+        if ( content[i] == '\r' ) continue;
         if ( content[i] == '\n' ) {
           w_current = 0;
           y_offset += charConfig.getMaxcharheight() + config.ygap;
@@ -209,7 +210,7 @@ struct typeSetter
         cache_avaliable = true;
     } else {
       for ( u64 i = start; i < start + charnum; i++ ) {
-        if ( content[i] == '\n' ) {
+        if ( content[i] == '\n' || content[i] == '\r' ) {
           continue;
         }
         const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
