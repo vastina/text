@@ -40,6 +40,7 @@ inline static void GetScreenDPI( int& dpiX, int& dpiY )
 }
 #include <filesystem>
 #include <string>
+#include <fstream>
 
 namespace vas {
 static inline std::string SearchTTf()
@@ -66,6 +67,15 @@ static inline std::string SearchTTf()
   //     }
   //   }
   //   throw std::runtime_error( "no ttf found" );
+}
+static inline std::string Readfile( const std::string& path )
+{
+  const auto length { std::filesystem::file_size( path ) };
+  std::ifstream file { path, std::ios::binary };
+  std::string content( length, 0 );
+  file.read( content.data(), length );
+  file.close();
+  return content;
 }
 }
 
@@ -146,9 +156,9 @@ static inline RGB getHighContrastColor( RGB backgroundColor )
 #endif
 
 #ifdef _WIN32
-  #undef min
-  #undef max
-  // who define this? MSVC or freetype or SDL2? fuck you
+#undef min
+#undef max
+// who define this? MSVC or freetype or SDL2? fuck you
 #endif
 
 #endif

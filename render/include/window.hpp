@@ -25,7 +25,8 @@ private:
 public:
   Player( const char* title, u32 w = 800, u32 h = 600 ) : width( w ), height( h )
   {
-    wd = SDL_CreateWindow( title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
+    wd = SDL_CreateWindow(
+      title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
     if ( wd == nullptr ) {
       std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << '\n';
       throw std::runtime_error( "sdl" );
@@ -53,7 +54,8 @@ public:
     SDL_RenderCopy( renderer, texture, nullptr, nullptr );
     SDL_RenderPresent( renderer );
   }
-  SDL_Texture* CreateTexture( u32 format = SDL_PIXELFORMAT_RGB888, int access = SDL_TEXTUREACCESS_STREAMING )
+  SDL_Texture* CreateTexture( u32 format = SDL_PIXELFORMAT_RGB888,
+                              int access = SDL_TEXTUREACCESS_STREAMING )
   {
     return SDL_CreateTexture( renderer, format, access, width, height );
   }
@@ -89,7 +91,8 @@ public:
   {
     handles.insert_or_assign( EventType, handle );
   }
-  void addStatehandle( const std::function<bool()>& InStatejudge, const std::function<void()>& handle )
+  void addStatehandle( const std::function<bool()>& InStatejudge,
+                       const std::function<void()>& handle )
   {
     statehandles.push_back( std::make_pair( InStatejudge, handle ) );
   }

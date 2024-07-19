@@ -7,7 +7,9 @@ namespace vas {
 namespace png {
 
 extern "C++" void write_uint32( std::ofstream& file, uint32_t value );
-extern "C++" void write_chunk( std::ofstream& file, const string_view& type, const std::vector<uint8_t>& data );
+extern "C++" void write_chunk( std::ofstream& file,
+                               const string_view& type,
+                               const std::vector<uint8_t>& data );
 
 struct pngConfig
 {

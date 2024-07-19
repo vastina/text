@@ -9,7 +9,8 @@ namespace png {
 namespace {
 inline u32 calculate_crc32( const std::vector<uint8_t>& data )
 {
-  return crc32( 0L, reinterpret_cast<const Bytef*>( data.data() ), static_cast<u32>( data.size() ) );
+  return crc32(
+    0L, reinterpret_cast<const Bytef*>( data.data() ), static_cast<u32>( data.size() ) );
 }
 }
 
@@ -75,7 +76,8 @@ void png::write()
   }
   {
     // todo, config
-    std::vector<uint8_t> compressed_data( ::compressBound( static_cast<uLongf>( data.size() ) ) + 4 );
+    std::vector<uint8_t> compressed_data( ::compressBound( static_cast<uLongf>( data.size() ) )
+                                          + 4 );
     {
       constexpr char idat_signature[4] = { 'I', 'D', 'A', 'T' };
       compressed_data[0] = idat_signature[0];
@@ -84,7 +86,10 @@ void png::write()
       compressed_data[3] = idat_signature[3];
     }
     unsigned long compressed_size = static_cast<unsigned long>( compressed_data.size() - 4 );
-    ::compress( compressed_data.data() + 4, &compressed_size, data.data(), static_cast<uLongf>( data.size() ) );
+    ::compress( compressed_data.data() + 4,
+                &compressed_size,
+                data.data(),
+                static_cast<uLongf>( data.size() ) );
     compressed_data.resize( compressed_size + 4 );
 
     write_uint32( fs, compressed_size );
@@ -98,7 +103,11 @@ void png::write()
   fs.close();
 }
 
-void png::DrawChar( const u32 width, const u32 height, const u8* buffer, const u32 xoffst, const u32 yoffst )
+void png::DrawChar( const u32 width,
+                    const u32 height,
+                    const u8* buffer,
+                    const u32 xoffst,
+                    const u32 yoffst )
 {
   for ( u32 y = 0; y < height; y++ ) {
     for ( u32 x = 0; x < width; x++ ) {

@@ -72,11 +72,15 @@ public:
       FT_Done_FreeType( library );
       return;
     }
-    maxcharheight = maxcharheight > face->glyph->bitmap.rows ? maxcharheight : face->glyph->bitmap.rows;
+    maxcharheight
+      = maxcharheight > face->glyph->bitmap.rows ? maxcharheight : face->glyph->bitmap.rows;
     faces.insert( std::make_pair( char_code, face ) );
   }
 
-  FT_Bitmap* LoadCharBitmap( u64 char_code ) const { return &( faces.at( char_code )->glyph->bitmap ); }
+  FT_Bitmap* LoadCharBitmap( u64 char_code ) const
+  {
+    return &( faces.at( char_code )->glyph->bitmap );
+  }
   u32 getMaxcharheight() const { return maxcharheight; }
 };
 
@@ -112,7 +116,10 @@ struct typeSetter
               vas::DrawBoard& board,
               typeSetter::Config Config = { 7, 0, 0, 32 * 48 },
               const std::string& FontPath = "Deng.ttf" )
-    : config( Config ), content { Text::utf8_to_utf32( text ) }, b { board }, charConfig { FontPath }
+    : config( Config )
+    , content { Text::utf8_to_utf32( text ) }
+    , b { board }
+    , charConfig { FontPath }
   {}
 
   void setRect( int l, int t, int w, int h )
@@ -223,7 +230,7 @@ struct typeSetter
     }
   }
 
-  bool charinRect( u32 index, u32 x1, u32 y1, u32 x2, u32 y2 )
+  bool charinRect( u32 index, u32 x1, u32 y1, u32 x2, u32 y2 ) const
   {
     if ( !cache_avaliable )
       return false;

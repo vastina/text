@@ -13,7 +13,8 @@ struct pixeler
   u32* pixels { nullptr };
   u32 width {};
   u32 height {};
-  pixeler( SDL_Texture* Texture, u32 Width, u32 Height ) : texture( Texture ), width( Width ), height( Height )
+  pixeler( SDL_Texture* Texture, u32 Width, u32 Height )
+    : texture( Texture ), width( Width ), height( Height )
   {
     int pitch;
     if ( SDL_LockTexture( texture, nullptr, (void**)&pixels, &pitch ) != 0 ) {
@@ -31,7 +32,9 @@ struct pixeler
   void setLine( u32 y, u32 x_start, u32 x_end, RGB color ) const
   {
     auto pos { y * width };
-    std::fill( pixels + pos + x_start, pixels + pos + x_end, ( color.r << 16 ) | ( color.g << 8 ) | color.b );
+    std::fill( pixels + pos + x_start,
+               pixels + pos + x_end,
+               ( color.r << 16 ) | ( color.g << 8 ) | color.b );
   }
   void FillBackground( RGB color ) const
   {
@@ -130,8 +133,14 @@ struct DrawBoard
     }
   }
   void Clear( int x1, int y1, int x2, int y2 ) { DrawRect( x1, y1, x2, y2, config.background ); }
-  void Clear_Coverable( int x1, int y1, int x2, int y2 ) { DrawRect_Coverable( x1, y1, x2, y2, config.background ); }
-  void Clear_force( int x1, int y1, int x2, int y2 ) const { Drawrect_force( x1, y1, x2, y2, config.background ); }
+  void Clear_Coverable( int x1, int y1, int x2, int y2 )
+  {
+    DrawRect_Coverable( x1, y1, x2, y2, config.background );
+  }
+  void Clear_force( int x1, int y1, int x2, int y2 ) const
+  {
+    Drawrect_force( x1, y1, x2, y2, config.background );
+  }
 };
 
 }
