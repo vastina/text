@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-# Enable Hot Reload for MSVC compilers if supported.
 if(WIN32)
+  # Enable Hot Reload for MSVC compilers if supported.
   if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
@@ -10,6 +10,12 @@ if(WIN32)
   set(env "C:/ProgramData/scoop/apps") # packages location
   include(FetchContent) # FetchContent_Declare FetchContent_MakeAvailable
   include_directories("D:\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.40.33807\\include") # clangd cat't find it automatically
+elseif(LINUX)
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 endif()
 
 # this one is PTHONY
@@ -94,12 +100,6 @@ if(WIN32)
   endif()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od")
-elseif(LINUX)
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_BUILD_TYPE Debug)
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 endif()
 
 if(WIN32)
@@ -142,6 +142,18 @@ elseif(LINUX)
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
+    ${LIBBASE}
+    ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
+    ${FREETYPE_LIBRARIES}
+    ${X11_LIBRARIES}
+  )
+  target_include_directories(${GAME1} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}
+    ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${X11_INCLUDE_DIR}
+    ${utfcpp_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME1} PRIVATE 
     ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}

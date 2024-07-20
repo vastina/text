@@ -50,6 +50,7 @@ static inline std::string SearchTTf()
   path = "C:\\Windows\\Fonts\\Deng.ttf";
 #elif __linux__
   path = "/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf";
+  path = "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc";
 #endif
   if ( !std::filesystem::exists( path ) )
     throw std::runtime_error( "no ttf found" );
@@ -159,6 +160,10 @@ static inline RGB getHighContrastColor( RGB backgroundColor )
 #undef min
 #undef max
 // who define this? MSVC or freetype or SDL2? fuck you
+#elif __LINUX__
+// fuck you, X11/X.h
+#undef Success
+
 #endif
 
 namespace vas {
