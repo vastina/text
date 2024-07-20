@@ -28,12 +28,25 @@ public:
     }
     board.resize( rows );
     for ( auto& row : board ) {
-      row.resize( cols );
+      row.resize( cols, 0 );
     }
     GenerateBoard();
   }
   GSetter( board );
   GSetter( visible ) u32 getcols() const { return cols; }
+
+  void reset()
+  {
+    for ( auto it = visible.begin(); it != visible.end(); it++ ) {
+      std::fill( it->begin(), it->end(), false );
+    }
+    for ( auto it = board.begin(); it != board.end(); it++ ) {
+      std::fill( it->begin(), it->end(), 0 );
+    }
+    GenerateBoard();
+    hit_mine = false;
+    units_left = rows * cols - mines;
+  }
 
 private:
   void GenerateBoard()
@@ -115,6 +128,20 @@ public:
   bool Success() const { return units_left == 0; }
 };
 
+enum Color : u32
+{
+  not_visible = 0x708090,
+  visible = 0x66cdaa,
+  mark_as_mine = 0xcc2020,
+  hit_mine = 0xff1010
+};
+
+static inline RGB toRGB( Color color )
+{
+  u32 c = color;
+  return { u8( ( c >> 16 ) & 0xff ), u8( ( c >> 8 ) & 0xff ), u8( c & 0xff ) };
+}
+
 class Drawer
 {
   u32 rows;
@@ -137,7 +164,6 @@ public:
     for ( u32 i { 0u }; auto& row : drawer ) {
       for ( u32 j { 0u }; auto& ts : row ) {
         ts = new typeSetter( "", b );
-        ts->background = { 0x70, 0x80, 0x90 };
         ts->config.draw_start_x = unit_width / 3;
         ts->config.draw_start_y = unit_height / 3;
         ts->setRect(
@@ -163,9 +189,11 @@ public:
       for ( u32 j { 0u }; j < cols; j++ ) {
         if ( visible[i][j] ) {
           if ( board[i][j] >= '9' )
-            drawer[i][j]->background = { 0xff, 0x10, 0x10 };
+            drawer[i][j]->background = toRGB( Color::hit_mine );
           else
-            drawer[i][j]->background = { 0x66, 0xcd, 0xaa };
+            drawer[i][j]->background = toRGB( Color::visible );
+        } else {
+          drawer[i][j]->background = toRGB( Color::not_visible );
         }
         drawer[i][j]->ChangeContent( [&]( auto& content ) {
           content = Text::utf8_to_utf32( { visible[i][j] ? board[i][j] : ' ' } );
@@ -185,10 +213,10 @@ public:
   {
     if ( i >= rows || j >= cols )
       return;
-    if ( drawer[i][j]->background != RGB { 0xcc, 0x20, 0x20 } )
-      drawer[i][j]->background = { 0xcc, 0x20, 0x20 };
+    if ( drawer[i][j]->background != toRGB( Color::mark_as_mine ) )
+      drawer[i][j]->background = toRGB( Color::mark_as_mine );
     else
-      drawer[i][j]->background = { 0x70, 0x80, 0x90 };
+      drawer[i][j]->background = toRGB( Color::not_visible );
   }
 };
 

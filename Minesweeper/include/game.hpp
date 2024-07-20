@@ -34,21 +34,24 @@ public:
   ~Game() = default;
   void MainLoop()
   {
-    bool gaming { false };
+    bool gaming { true };
+    const auto play_again { [] {
+      std::cout << "Play again? (y/n): ";
+      std::string ans;
+      std::cin >> ans;
+      return ans == "y";
+    } };
     // auto start { std::chrono::system_clock::now() };
     // u32 frames { 0u };
     while ( !window.ShouldQuit() ) {
-      gaming = game_board.HitMine() || game_board.Success();
-      if ( !gaming ) {
-        base_board.ClearBuffer();
-      }
-      // handle close only when not gaming
-      window.HandleEvent();
-      if ( !gaming ) {
+      gaming = !( game_board.HitMine() || game_board.Success() );
+      base_board.ClearBuffer();
+      {
+        window.HandleEvent();
         window.HandleState();
         drawer.DrawContent( game_board );
-        window.Render( base_board );
       }
+      window.Render( base_board );
       // {
       //   auto end { std::chrono::system_clock::now() };
       //   if ( end - start >= 1s ) {
@@ -58,10 +61,26 @@ public:
       //   }
       //   frames++;
       // }
+      {
+        if ( not gaming ) {
+          if ( play_again() )
+            reset();
+          else
+            break;
+        }
+      }
     }
   }
 
 private:
+  void reset()
+  {
+    window.addhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
+    window.addhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
+    base_board.ClearBuffer();
+    game_board.reset();
+    window.ChangeTitle( "Minesweeper" );
+  }
   struct mouse_state
   {
     bool leftdown { false };
