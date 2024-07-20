@@ -27,6 +27,10 @@ using std::vector;
   void set##member( const decltype( member )& _##member )                                          \
   {                                                                                                \
     ( member ) = _##member;                                                                        \
+  }                                                                                                \
+  const decltype( member )& get##member() const                                                    \
+  {                                                                                                \
+    return member;                                                                                 \
   }
 
 struct RGB

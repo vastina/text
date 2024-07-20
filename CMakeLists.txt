@@ -18,6 +18,7 @@ set(LIBBASE base)
 project(${LIBBASE})
 set(MAINPROJECT render)
 project(${MAINPROJECT})
+set(GAME1 Minesweeper)
 
 #find_packages#########################################################################################
 ###############
@@ -81,10 +82,15 @@ set(RENDER_INCLUDE "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/include")
 file(GLOB SOURCES_RENDER "${CMAKE_SOURCE_DIR}/${MAINPROJECT}/*.cpp")
 add_executable(render ${SOURCES_RENDER})
 
+set(GAME1_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME1}/include")
+file(GLOB SOURCES_GAME1 "${CMAKE_SOURCE_DIR}/${GAME1}/*.cpp")
+add_executable(${GAME1} ${SOURCES_GAME1})
+
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)  
+    set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
   endif()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od")
@@ -113,6 +119,17 @@ if(WIN32)
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
+    ${LIBBASE}
+    ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
+    freetype
+  )
+  target_include_directories(${GAME1} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}
+    ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
+    ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${utfcpp_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME1} PRIVATE 
     ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     freetype
