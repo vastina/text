@@ -1,3 +1,6 @@
+#ifndef _MINESWEEPER_GAME_H_
+#define _MINESWEEPER_GAME_H_
+
 #include "window.hpp"
 
 #include "board.hpp"
@@ -25,7 +28,7 @@ public:
     : window( title, w, h )
     , base_board( window.CreateTexture(), w, h )
     , game_board( rows, cols, mines )
-    , drawer( base_board, rows, cols, w, h )
+    , drawer( base_board, game_board )
   // , mouse_handle( base_board )
   {
     window.addhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
@@ -82,15 +85,7 @@ private:
     drawer.reset();
     window.ChangeTitle( "Minesweeper" );
   }
-  struct mouse_state
-  {
-    bool leftdown { false };
-    bool rightdown { false };
-    int xfirst { 0 };
-    int xcur { 0 };
-    int yfirst { 0 };
-    int ycur { 0 };
-  } ms {};
+  mousestate ms {};
   void MouseDown( const SDL_Event& e )
   {
     // if(e.button.button == SDL_BUTTON_RIGHT) {
@@ -148,3 +143,5 @@ private:
 
 }
 }
+
+#endif

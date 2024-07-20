@@ -122,18 +122,20 @@ public:
   inline bool ShouldQuit() const { return quit; }
 };
 
-struct mousehandle
+struct mousestate
 {
-  vas::DrawBoard& b;
-
-  bool down { false };
+  bool leftdown { false };
+  bool rightdown { false };
   bool moved_last_frame { false };
   int xfirst { 0 };
   int xcur { 0 };
   int yfirst { 0 };
   int ycur { 0 };
+};
 
-  mousehandle( vas::DrawBoard& B ) : b( B ) {}
+struct mousehandle : mousestate
+{
+  mousehandle() = default;
   ~mousehandle() = default;
 
   virtual void DealDown( const SDL_Event& e ) = 0;

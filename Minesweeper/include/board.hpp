@@ -1,3 +1,6 @@
+#ifndef _MINESWEEPER_BOARD_H_
+#define _MINESWEEPER_BOARD_H_
+
 #include "text.hpp"
 
 #include <random>
@@ -33,7 +36,9 @@ public:
     }
   }
   GSetter( board );
-  GSetter( visible ) u32 getcols() const { return cols; }
+  GSetter( visible );
+  u32 getcols() const { return cols; }
+  u32 getrows() const { return rows; }
 
   void reset()
   {
@@ -165,8 +170,11 @@ class Drawer
   u32 gap { 5 };
 
 public:
-  Drawer( DrawBoard& b, u32 r, u32 c, u32 window_width, u32 window_height )
-    : rows( r ), cols( c ), width( window_width ), height( window_height )
+  Drawer( DrawBoard& b, const Board& game_board )
+    : rows( game_board.getrows() )
+    , cols( game_board.getcols() )
+    , width( b.pic.width )
+    , height( b.pic.height )
   {
     drawer.resize( rows );
     for ( auto& row : drawer )
@@ -252,3 +260,5 @@ public:
 
 }
 }
+
+#endif

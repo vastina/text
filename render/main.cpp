@@ -53,7 +53,7 @@ int main( int argc, char* argv[] )
       }
     } );
     player.addhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
-    player.addStatehandle( [&m] { return !m.moved_last_frame && m.down; },
+    player.addStatehandle( [&m] { return !m.moved_last_frame && m.leftdown; },
                            [&m] { m.DealDownState(); } );
 
     u32 chars = 0;
