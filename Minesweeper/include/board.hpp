@@ -162,7 +162,7 @@ public:
     for ( u32 i { 0u }; i < rows; i++ ) {
       for ( u32 j { 0u }; j < cols; j++ ) {
         if ( visible[i][j] ) {
-          if ( board[i][j] == '9' )
+          if ( board[i][j] >= '9' )
             drawer[i][j]->background = { 0xff, 0x10, 0x10 };
           else
             drawer[i][j]->background = { 0x66, 0xcd, 0xaa };
@@ -180,6 +180,15 @@ public:
     const u32 unit_height { height / rows };
     // if( x < 0 || x >= width || y < 0 || y >= height ) return {0, 0};
     return { x / unit_width, y / unit_height };
+  }
+  void mark_as_mine( u32 i, u32 j )
+  {
+    if ( i >= rows || j >= cols )
+      return;
+    if ( drawer[i][j]->background != RGB { 0xcc, 0x20, 0x20 } )
+      drawer[i][j]->background = { 0xcc, 0x20, 0x20 };
+    else
+      drawer[i][j]->background = { 0x70, 0x80, 0x90 };
   }
 };
 

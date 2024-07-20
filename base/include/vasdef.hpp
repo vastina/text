@@ -38,6 +38,9 @@ struct RGB
   u8 r;
   u8 g;
   u8 b;
+
+  bool operator==( const RGB& other ) const { return r == other.r && g == other.g && b == other.b; }
+  bool operator!=( const RGB& other ) const { return !( *this == other ); }
 };
 
 struct Vec3f

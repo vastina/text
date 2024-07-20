@@ -44,6 +44,7 @@ public:
     SDL_DestroyWindow( wd );
   }
 
+  void ChangeTitle( const char* title ) { SDL_SetWindowTitle( wd, title ); }
   void Render( const DrawBoard& b )
   {
     SDL_Texture* texture = b.pic.texture;
