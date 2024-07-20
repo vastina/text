@@ -1,5 +1,5 @@
 #include "game.hpp"
 
-namespace vas { namespace mw {
-
-}}
+namespace vas {
+namespace mw {}
+}

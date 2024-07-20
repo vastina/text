@@ -4,7 +4,8 @@
 #include "game.hpp"
 
 const static vas::BeforeStart bs {};
-int main( int argc, char* argv[] ){
+int main( int argc, char* argv[] )
+{
   try {
     vas::mw::Game g {};
     g.MainLoop();
