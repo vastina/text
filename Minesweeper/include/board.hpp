@@ -14,8 +14,11 @@ private:
   std::vector<std::vector<char>> board;
   std::vector<std::vector<bool>> visible;
 
+  bool hit_mine { false };
+  u32 units_left;
+
 public:
-  Board( u32 r = 8, u32 c = 8, u32 m = 10 ) : rows( r ), cols( c ), mines( m )
+  Board( u32 r = 8, u32 c = 8, u32 m = 10 ) : rows( r ), cols( c ), mines( m ), units_left( r * c - m )
   {
     visible.resize( rows );
     for ( auto& row : visible ) {
@@ -29,6 +32,7 @@ public:
   }
   GSetter( board );
   GSetter( visible )
+  u32 getcols() const { return cols; }
 private:
   void GenerateBoard()
   {
@@ -78,17 +82,19 @@ public:
     if( x < 0 || x >= rows || y < 0 || y >= cols ) return;
     if( visible[x][y] ) return;
     visible[x][y] = true;
+    // while HitMine() is judged before Success(), the following line is unnecessary
+    // if(board[x][y] <= '9')
+    units_left--;
     if( board[x][y] == '0' ) {
-      click({x-1, y-1});
-      click({x-1, y});
-      click({x-1, y+1});
-      click({x, y-1});
-      click({x, y+1});
-      click({x+1, y-1});
-      click({x+1, y});
-      click({x+1, y+1});
+      click({x-1, y-1}); click({x-1, y}); click({x-1, y+1});
+      click({x,   y-1});                  click({x, y+1});
+      click({x+1, y-1}); click({x+1, y}); click({x+1, y+1});
+    } else if( board[x][y] == '9' ) {
+      hit_mine = true;
     }
   }
+  bool HitMine() const { return hit_mine; }
+  bool Success() const { return units_left == 0; }
 };
 
 class Drawer
@@ -134,6 +140,10 @@ public:
     const auto& visible { b.getvisible() };
     for( u32 i {0u}; i < rows; i++ ) {
       for( u32 j {0u}; j < cols; j++ ) {
+        if(visible[i][j]) {
+          if(board[i][j] == '9') drawer[i][j]->background = {0xff, 0x10, 0x10};
+          else drawer[i][j]->background = {0x66, 0xcd, 0xaa};
+        }
         drawer[i][j]->ChangeContent([&](auto& content)
           { content = Text::utf8_to_utf32({visible[i][j] ? board[i][j] : ' '}); });
         drawer[i][j]->DrawContent();

@@ -96,10 +96,16 @@ public:
   {
     statehandles.push_back( std::make_pair( InStatejudge, handle ) );
   }
+  void removehandle( u32 EventType ) { handles.erase( EventType ); }
+  void clearStatehandle() { statehandles.clear(); }
   void HandleEvent()
   {
     SDL_Event e;
     while ( SDL_PollEvent( &e ) != 0 ) {
+      if ( e.type == SDL_QUIT ) {
+        // sdl_quit is preserved for the main loop
+        quit = true;
+      }
       if ( handles.contains( e.type ) ) {
         handles[e.type]( e );
       }

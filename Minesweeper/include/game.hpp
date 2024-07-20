@@ -26,12 +26,19 @@ public:
   ~Game() = default;
   void MainLoop()
   {
+    bool gaming { false };
     while ( !window.ShouldQuit() ) {
-      base_board.ClearBuffer();
-      window.HandleEvent();
-      window.HandleState();
-      drawer.DrawContent(game_board);
-      window.Render(base_board);
+      gaming = game_board.HitMine() || game_board.Success();
+      if (!gaming ) {
+        base_board.ClearBuffer();
+      }
+        // handle close only when not gaming
+        window.HandleEvent();
+      if (!gaming ) {
+        window.HandleState();
+        drawer.DrawContent(game_board);
+        window.Render(base_board);
+      }
     }
   }
 private:
@@ -57,6 +64,19 @@ private:
 
     if ( ms.xfirst == ms.xcur && ms.yfirst == ms.ycur ) {
       game_board.click(drawer.CalculatePos(ms.xcur, ms.ycur));
+    }
+    // prevent crash, clear all handles
+    if( game_board.HitMine() ) {
+      window.clearStatehandle();
+      window.removehandle(SDL_MOUSEBUTTONDOWN);
+      window.removehandle(SDL_MOUSEBUTTONUP);
+    } else if( game_board.Success() ) {
+      window.clearStatehandle();
+      window.removehandle(SDL_MOUSEBUTTONDOWN);
+      window.removehandle(SDL_MOUSEBUTTONUP);
+      for(auto it = game_board.getvisible().begin(); it != game_board.getvisible().end(); it++) {
+        std::fill(it->begin(), it->end(), true);
+      }
     }
   }
   void MouseMove(const SDL_Event& e) {
