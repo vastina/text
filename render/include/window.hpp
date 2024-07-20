@@ -125,55 +125,15 @@ struct mousehandle
   int xcur { 0 };
   int yfirst { 0 };
   int ycur { 0 };
-  void DealDown( const SDL_Event& e )
-  {
-    down = true;
-    xfirst = e.button.x;
-    yfirst = e.button.y;
-    xcur = xfirst;
-    ycur = yfirst;
-    // if ( down ) {
-    //   // error, if down, why there is another down
-    // } else {
-    // }
-  }
-  void DealUp( const SDL_Event& e )
-  {
-    down = false;
-    if ( e.button.x < 0 ) {
-      xcur = 0;
-    } else if ( e.button.x > static_cast<int>( b.pic.width ) ) {
-      xcur = b.pic.width;
-    } else {
-      xcur = e.button.x;
-    }
-    if ( e.button.y < 0 ) {
-      ycur = 0;
-    } else if ( e.button.y > static_cast<int>( b.pic.height ) ) {
-      ycur = b.pic.height;
-    } else {
-      ycur = e.button.y;
-    }
-    // (int)-1 > (u32)1
-    b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
-  }
 
-  void DealMove( const SDL_Event& e )
-  {
-    if ( down ) {
-      if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
-           || static_cast<u64>( e.button.y ) > b.pic.height ) {
-        return;
-      }
-      b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
-      xcur = e.button.x;
-      ycur = e.button.y;
-      b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
-    }
-    moved_last_frame = true;
-  }
-  void DealDownState() { b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } ); }
-  void freshState() { moved_last_frame = false; }
+  mousehandle( vas::DrawBoard& B ) : b( B ) {}
+  ~mousehandle() = default;
+
+  virtual void DealDown( const SDL_Event& e ) = 0;
+  virtual void DealUp( const SDL_Event& e ) = 0;
+  virtual void DealMove( const SDL_Event& e ) = 0;
+  virtual void DealDownState() = 0;
+  virtual void freshState() = 0;
 };
 
 }

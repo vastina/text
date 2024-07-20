@@ -96,16 +96,13 @@ struct typeSetter
     u32 ygap { 0 };
     i32 char_width { 0 };
     i32 char_height { 32 * 48 };
+    u32 draw_start_x { 0u };
+    u32 draw_start_y { 0u };
     // ...
   } config {};
   RGB background { 0x22, 0x22, 0x22 };
   std::vector<u32> content;
   //  std::string content;
-  struct pos
-  {
-    u32 x;
-    u32 y;
-  };
   bool cache_avaliable { false };
   std::vector<pos> poscache;
   DrawBoard& b;
@@ -114,7 +111,7 @@ struct typeSetter
   // Deng.ttf, 等线, form C:\\Windows\\Fonts
   typeSetter( const std::string& text,
               vas::DrawBoard& board,
-              typeSetter::Config Config = { 7, 0, 0, 32 * 48 },
+              typeSetter::Config Config = { 7, 0, 0, 32 * 48, 0, 0 },
               const std::string& FontPath = "Deng.ttf" )
     : config( Config )
     , content { Text::utf8_to_utf32( text ) }
@@ -171,7 +168,7 @@ struct typeSetter
   {
     change( content );
     cache_avaliable = false;
-    // LoadContent();
+    LoadContent();
   }
 
   void DrawContent( u64 start = 0u, u64 charnum = UINT32_MAX )
@@ -182,17 +179,18 @@ struct typeSetter
     // float rgbmax =std::max({r,g,b});
     // Vec3f scale {rgbmax/background.r, rgbmax/background.g, rgbmax/background.b};
     if ( !cache_avaliable ) {
-      u32 w_current { 0u };
-      u32 y_offset { 0u };
+      u32 w_current { config.draw_start_x };
+      u32 y_offset { config.draw_start_y };
       for ( u64 i = start; i < start + charnum; i++ ) {
-        if ( content[i] == '\r' ) continue;
+        if ( content[i] == '\r' )
+          continue;
         if ( content[i] == '\n' ) {
-          w_current = 0;
+          w_current = config.draw_start_x;
           y_offset += charConfig.getMaxcharheight() + config.ygap;
           continue;
         }
         if ( w_current > width ) {
-          w_current = 0;
+          w_current = config.draw_start_x;
           y_offset += charConfig.getMaxcharheight() + config.ygap;
         }
         const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };

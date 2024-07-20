@@ -1,5 +1,5 @@
 #include "text.hpp"
-#include "window.hpp"
+#include "main.hpp"
 
 using namespace std::chrono_literals;
 const static vas::BeforeStart bs {};
@@ -31,7 +31,7 @@ int main( int argc, char* argv[] )
     Title.LoadContent();
     Title.calculateContent();
 
-    vas::mousehandle m { b };
+    mousehandle m { b };
     player.addhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
     player.addhandle( SDL_MOUSEBUTTONUP, [&]( const SDL_Event& e ) {
       m.DealUp( e );

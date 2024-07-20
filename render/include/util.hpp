@@ -161,4 +161,12 @@ static inline RGB getHighContrastColor( RGB backgroundColor )
 // who define this? MSVC or freetype or SDL2? fuck you
 #endif
 
+namespace vas {
+struct pos
+{
+  u32 x;
+  u32 y;
+};
+}
+
 #endif
