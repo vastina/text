@@ -18,10 +18,10 @@ private:
 public:
   Game( const char* title = "Minesweeper",
         u32 rows = 16,
-        u32 cols = 16,
-        u32 mines = 40,
-        u32 w = 1000,
-        u32 h = 1000 )
+        u32 cols = 30,
+        u32 mines = 99,
+        u32 w = 1200,
+        u32 h = 600 )
     : window( title, w, h )
     , base_board( window.CreateTexture(), w, h )
     , game_board( rows, cols, mines )
@@ -142,13 +142,6 @@ private:
         std::fill( it->begin(), it->end(), true );
       }
       window.ChangeTitle( "Win" );
-    }
-  }
-  void MouseMove( const SDL_Event& e )
-  {
-    if ( ms.leftdown ) {
-      ms.xcur = std::min( std::max( 0, e.button.x ), static_cast<int>( base_board.pic.width ) );
-      ms.ycur = std::min( std::max( 0, e.button.y ), static_cast<int>( base_board.pic.height ) );
     }
   }
 };

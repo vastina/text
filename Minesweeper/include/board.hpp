@@ -16,6 +16,7 @@ private:
   std::vector<std::vector<bool>> visible;
 
   bool hit_mine { false };
+  bool first_click { true };
   u32 units_left;
 
 public:
@@ -30,7 +31,6 @@ public:
     for ( auto& row : board ) {
       row.resize( cols, 0 );
     }
-    GenerateBoard();
   }
   GSetter( board );
   GSetter( visible ) u32 getcols() const { return cols; }
@@ -43,19 +43,25 @@ public:
     for ( auto it = board.begin(); it != board.end(); it++ ) {
       std::fill( it->begin(), it->end(), 0 );
     }
-    GenerateBoard();
     hit_mine = false;
+    first_click = true;
     units_left = rows * cols - mines;
   }
 
-private:
-  void GenerateBoard()
+  void GenerateBoard( u32 firsti, u32 firstj )
   {
-    GenerateMines();
+    GenerateMines( firsti, firstj );
     GenerateNum();
   }
-  void GenerateMines()
+
+private:
+  void GenerateMines( u32 firsti, u32 firstj )
   {
+    board[firsti][firstj] = '0';
+    constexpr auto is_near { []( u32 i1, u32 j1, u32 i2, u32 j2 ) {
+      return ( ( std::max( i1, i2 ) - std::min( i1, i2 ) ) <= 1 )
+             && ( ( std::max( j1, j2 ) - std::min( j1, j2 ) ) <= 1 );
+    } };
     std::mt19937 gen { std::random_device {}() };
     std::uniform_int_distribution<u32> dist( 0, rows * cols - 1 );
     auto rd { std::bind( dist, gen ) };
@@ -64,6 +70,8 @@ private:
       do {
         auto row { rd() % rows };
         auto col { rd() % cols };
+        if ( is_near( row, col, firsti, firstj ) )
+          continue;
         if ( board[row][col] < '9' ) {
           board[row][col] = '9';
           break;
@@ -107,6 +115,10 @@ public:
       return;
     if ( visible[x][y] )
       return;
+    if ( first_click ) {
+      GenerateBoard( x, y );
+      first_click = false;
+    }
     visible[x][y] = true;
     // while HitMine() is judged before Success(), the following line is unnecessary
     // if(board[x][y] <= '9')
@@ -161,14 +173,25 @@ public:
       row.resize( cols );
     const u32 unit_width { width / cols };
     const u32 unit_height { height / rows };
+    u32 scale { UINT32_MAX };
+    {
+      if ( rows > 16 || cols > 16 )
+        scale = 3;
+    }
+    u32 draw_off_scale { 3u };
+    {
+      if ( scale == 3 )
+        draw_off_scale = 5;
+    }
     for ( u32 i { 0u }; auto& row : drawer ) {
       for ( u32 j { 0u }; auto& ts : row ) {
         ts = new typeSetter( "", b );
         ts->background = toRGB( Color::not_visible );
-        ts->config.draw_start_x = unit_width / 3;
-        ts->config.draw_start_y = unit_height / 3;
+        ts->config.char_height = ts->config.char_height - ts->config.char_height / scale;
+        ts->config.draw_start_x = unit_width / draw_off_scale;
+        ts->config.draw_start_y = unit_height / draw_off_scale;
         ts->setRect(
-          i * unit_width + gap, j * unit_height + gap, unit_width - gap, unit_height - gap );
+          j * unit_width + gap, i * unit_height + gap, unit_width - gap, unit_height - gap );
         j++;
       }
       i++;
@@ -214,7 +237,7 @@ public:
     const u32 unit_width { width / cols };
     const u32 unit_height { height / rows };
     // if( x < 0 || x >= width || y < 0 || y >= height ) return {0, 0};
-    return { x / unit_width, y / unit_height };
+    return { y / unit_height, x / unit_width };
   }
   void mark_as_mine( u32 i, u32 j )
   {
