@@ -59,6 +59,8 @@ public:
   }
   void AddChar( u64 char_code, i64 char_width, i64 char_height )
   {
+    if ( faces.contains( char_code ) )
+      return;
     FT_Face face;
     if ( FT_New_Face( library, font_path.data(), 0, &face ) ) {
       std::cerr << "Could not open font" << '\n';
