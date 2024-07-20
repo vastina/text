@@ -164,6 +164,7 @@ public:
     for ( u32 i { 0u }; auto& row : drawer ) {
       for ( u32 j { 0u }; auto& ts : row ) {
         ts = new typeSetter( "", b );
+        ts->background = toRGB( Color::not_visible );
         ts->config.draw_start_x = unit_width / 3;
         ts->config.draw_start_y = unit_height / 3;
         ts->setRect(
@@ -181,6 +182,14 @@ public:
       }
     }
   }
+  void reset()
+  {
+    for ( auto& row : drawer ) {
+      for ( auto& ts : row ) {
+        ts->background = toRGB( Color::not_visible );
+      }
+    }
+  }
   void DrawContent( const Board& b )
   {
     const auto& board { b.getboard() };
@@ -192,8 +201,6 @@ public:
             drawer[i][j]->background = toRGB( Color::hit_mine );
           else
             drawer[i][j]->background = toRGB( Color::visible );
-        } else {
-          drawer[i][j]->background = toRGB( Color::not_visible );
         }
         drawer[i][j]->ChangeContent( [&]( auto& content ) {
           content = Text::utf8_to_utf32( { visible[i][j] ? board[i][j] : ' ' } );

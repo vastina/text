@@ -79,6 +79,7 @@ private:
     window.addhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
     base_board.ClearBuffer();
     game_board.reset();
+    drawer.reset();
     window.ChangeTitle( "Minesweeper" );
   }
   struct mouse_state
