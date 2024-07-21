@@ -69,22 +69,25 @@ struct DrawBoard
                  const RGB BackgoundColor )
   {
     RGB char_color { getHighContrastColor( BackgoundColor ) };
-    u8 ava_rgb = ( BackgoundColor.r + BackgoundColor.g + BackgoundColor.b ) / 3;
+    // u8 ava_rgb = ( BackgoundColor.r + BackgoundColor.g + BackgoundColor.b ) / 3;
     // u8 rdiff = char_color.r - BackgoundColor.r;
     // u8 gdiff = char_color.g - BackgoundColor.g;
     // u8 bdiff = char_color.b - BackgoundColor.b;
     for ( u32 y = 0; y < height; y++ ) {
       for ( u32 x = 0; x < width; x++ ) {
-        if ( buffer[y * width + x] > ava_rgb ) {
-          setIndex( x + xoffst, y + yoffst, char_color );
-        } else {
-          setIndex( x + xoffst, y + yoffst, BackgoundColor );
-        }
-        // float ratio = buffer[y * width + x] / 255.f;
+        // if ( buffer[y * width + x] > ava_rgb ) {
+        //   setIndex( x + xoffst, y + yoffst, char_color );
+        // } else {
+        //   setIndex( x + xoffst, y + yoffst, BackgoundColor );
+        // }
+        float ratio = buffer[y * width + x] / 255.f;
         // RGB c = { static_cast<u8>( BackgoundColor.r + rdiff * ratio ),
         //           static_cast<u8>( BackgoundColor.g + gdiff * ratio ),
         //           static_cast<u8>( BackgoundColor.b + bdiff * ratio ) };
-        // setIndex( x + xoffst, y + yoffst, c );
+        RGB c = { static_cast<u8>( BackgoundColor.r * ( 1 - ratio ) + char_color.r * ratio ),
+                  static_cast<u8>( BackgoundColor.g * ( 1 - ratio ) + char_color.g * ratio ),
+                  static_cast<u8>( BackgoundColor.b * ( 1 - ratio ) + char_color.b * ratio ) };
+        setIndex( x + xoffst, y + yoffst, c );
       }
     }
   }
