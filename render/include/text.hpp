@@ -244,6 +244,10 @@ struct typeSetter
            && ( right_bottom_x >= poscache.at( index ).x + bitmap->width )
            && ( right_bottom_y >= poscache.at( index ).y + bitmap->rows );
   }
+  bool posInRect( u32 x, u32 y ) const
+  {
+    return ( x >= left && x <= left + width ) && ( y >= top && y <= top + height );
+  }
 };
 
 struct DomNode

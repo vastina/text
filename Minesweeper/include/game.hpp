@@ -19,12 +19,12 @@ private:
   Drawer drawer;
 
 public:
-  Game( const char* title = "Minesweeper",
-        u32 rows = 16,
+  Game( u32 rows = 16,
         u32 cols = 30,
         u32 mines = 99,
         u32 w = 1200,
-        u32 h = 600 )
+        u32 h = 600,
+        const char* title = "Minesweeper" )
     : window( title, w, h )
     , base_board( window.CreateTexture(), w, h )
     , game_board( rows, cols, mines )
@@ -38,12 +38,12 @@ public:
   void MainLoop()
   {
     bool gaming { true };
-    const auto play_again { [] {
-      std::cout << "Play again? (y/n): ";
-      std::string ans;
-      std::cin >> ans;
-      return ans == "y";
-    } };
+    // const auto play_again { [] {
+    //   std::cout << "Play again? (y/n): ";
+    //   std::string ans;
+    //   std::cin >> ans;
+    //   return ans == "y";
+    // } };
     // auto start { std::chrono::system_clock::now() };
     // u32 frames { 0u };
     while ( !window.ShouldQuit() ) {
@@ -66,10 +66,13 @@ public:
       // }
       {
         if ( not gaming ) {
-          if ( play_again() )
-            reset();
-          else
-            break;
+          // if ( play_again() )
+          //   reset();
+          // else
+          // break;
+          window.clearStatehandle();
+          window.removehandle( SDL_MOUSEBUTTONDOWN );
+          window.removehandle( SDL_MOUSEBUTTONUP );
         }
       }
     }
@@ -125,14 +128,8 @@ private:
     }
     // prevent crash, clear all handles
     if ( game_board.HitMine() ) {
-      window.clearStatehandle();
-      window.removehandle( SDL_MOUSEBUTTONDOWN );
-      window.removehandle( SDL_MOUSEBUTTONUP );
       window.ChangeTitle( "Lose" );
     } else if ( game_board.Success() ) {
-      window.clearStatehandle();
-      window.removehandle( SDL_MOUSEBUTTONDOWN );
-      window.removehandle( SDL_MOUSEBUTTONUP );
       for ( auto it = game_board.getvisible().begin(); it != game_board.getvisible().end(); it++ ) {
         std::fill( it->begin(), it->end(), true );
       }
