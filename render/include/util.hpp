@@ -9,28 +9,45 @@
 #endif
 
 namespace vas {
-inline static void GetScreenDPI( int& dpiX, int& dpiY )
+static int ScreenWidth;
+static int ScreenHeight;
+static int dpiX;
+static int dpiY;
+inline static void GetScreenSize()
 {
 #ifdef _WIN32
-  HDC screen = GetDC( NULL );
-  dpiX = GetDeviceCaps( screen, LOGPIXELSX );
-  dpiY = GetDeviceCaps( screen, LOGPIXELSY );
-  ReleaseDC( NULL, screen );
-#elif __APPLE__
-  return;
+  ScreenWidth = GetSystemMetrics( SM_CXSCREEN );
+  ScreenHeight = GetSystemMetrics( SM_CYSCREEN );
 #elif __linux__
-  Display* display = XOpenDisplay( NULL );
-  if ( display == NULL ) {
+  Display* display = XOpenDisplay( nullptr );
+  if ( display == nullptr ) {
+    std::cerr << "Cannot open display" << '\n';
+    ScreenWidth = ScreenHeight = -1; // Return invalid screen size
+    return;
+  }
+  vas::ScreenWidth = XDisplayWidth( display, DefaultScreen( display ) );
+  vas::ScreenHeight = XDisplayHeight( display, DefaultScreen( display ) );
+  XCloseDisplay( display );
+#endif
+}
+inline static void GetScreenDPI()
+{
+#ifdef _WIN32
+  HDC screen = GetDC( nullptr );
+  vas::dpiX = GetDeviceCaps( screen, LOGPIXELSX );
+  vas::dpiY = GetDeviceCaps( screen, LOGPIXELSY );
+  ReleaseDC( nullptr, screen );
+#elif __linux__
+  Display* display = XOpenDisplay( nullptr );
+  if ( display == nullptr ) {
     std::cerr << "Cannot open display" << '\n';
     dpiX = dpiY = -1; // Return invalid DPI values
     return;
   }
-  int screen_width = XDisplayWidth( display, DefaultScreen( display ) );
-  int screen_height = XDisplayHeight( display, DefaultScreen( display ) );
   int screen_width_mm = XDisplayWidthMM( display, DefaultScreen( display ) );
   int screen_height_mm = XDisplayHeightMM( display, DefaultScreen( display ) );
-  dpiX = (int)( 25.4 * screen_width / screen_width_mm );
-  dpiY = (int)( 25.4 * screen_height / screen_height_mm );
+  dpiX = (int)( 25.4 * vas::ScreenWidth / screen_width_mm );
+  dpiY = (int)( 25.4 * vas::ScreenHeight / screen_height_mm );
   XCloseDisplay( display );
 #else
   dpiX = dpiY = -1; // Unsupported platform
@@ -39,13 +56,14 @@ inline static void GetScreenDPI( int& dpiX, int& dpiY )
 
 }
 #include <filesystem>
-#include <string>
 #include <fstream>
+#include <stdexcept>
 
+#include "vasdef.hpp"
 namespace vas {
-static inline std::string SearchTTf()
+static inline string SearchTTf()
 {
-  std::string path {};
+  string path {};
 #ifdef _WIN32
   path = "C:\\Windows\\Fonts\\Deng.ttf";
 #elif __linux__
@@ -69,25 +87,25 @@ static inline std::string SearchTTf()
   //   }
   //   throw std::runtime_error( "no ttf found" );
 }
-static inline std::string Readfile( const std::string& path )
+static inline string Readfile( const string& path )
 {
   const auto length { std::filesystem::file_size( path ) };
   std::ifstream file { path, std::ios::binary };
-  std::string content( length, 0 );
+  string content( length, 0 );
   file.read( content.data(), length );
   file.close();
   return content;
 }
 }
 
+/*
+  init things before window start
+*/
 #include <SDL.h>
 // #include <SDL_image.h>
 #include <iostream>
 
 namespace vas {
-static int dpiX;
-static int dpiY;
-
 class BeforeStart
 {
 public:
@@ -107,9 +125,16 @@ public:
 private:
   static inline bool init()
   {
-    GetScreenDPI( vas::dpiX, vas::dpiY );
-    if ( vas::dpiX == -1 || vas::dpiY == -1 )
+    GetScreenSize();
+    if ( ScreenWidth <= 0 || ScreenHeight <= 0 || ScreenWidth > 20000 || ScreenHeight > 20000 ) {
+      std::cerr << "get screen size failed" << '\n';
       return false;
+    }
+    GetScreenDPI();
+    if ( vas::dpiX == -1 || vas::dpiY == -1 ) {
+      std::cerr << "get screen dpi failed" << '\n';
+      return false;
+    }
     if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
       std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << '\n';
       return false;
@@ -124,7 +149,6 @@ private:
 };
 }
 
-#include "vasdef.hpp"
 namespace vas {
 static inline double calculateLuminance( RGB color )
 {
@@ -157,9 +181,12 @@ static inline RGB getHighContrastColor( RGB backgroundColor )
 #endif
 
 #ifdef _WIN32
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 4267 )
 #undef min
 #undef max
-// who define this? MSVC or freetype or SDL2? fuck you
+#undef RGB
+// fuck you, ms
 #elif __LINUX__
 // fuck you, X11/X.h
 #undef Success
@@ -167,11 +194,15 @@ static inline RGB getHighContrastColor( RGB backgroundColor )
 #endif
 
 namespace vas {
-struct pos
+// low bits
+static inline RGB toRGB( u32 color )
 {
-  u32 x;
-  u32 y;
-};
+  return { u8( ( color >> 16 ) & 0xff ), u8( ( color >> 8 ) & 0xff ), u8( color & 0xff ) };
+}
+static inline u32 RGBtoU32( RGB color )
+{
+  return ( color.r << 16 ) | ( color.g << 8 ) | color.b;
+}
 }
 
 #endif

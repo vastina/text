@@ -55,7 +55,7 @@ endif()
 
 # utfcpp head only
 if(WIN32)  
-  set(utfcpp_INCLUDE_DIR "${env}/utfcpp/source")
+  set(utfcpp_INCLUDE_DIR "${env}/utfcpp/6be08bbea14ffa0a5c594257fb6285a054395cd7.hash")
   # https://github.com/nemtrif/utfcpp.git
 elseif(LINUX)
   set(utfcpp_INCLUDE_DIR "/usr/include/utf8cpp")
@@ -77,6 +77,12 @@ find_package(SDL2 REQUIRED)
 if(LINUX)
   find_package(X11 REQUIRED)
 endif()
+
+# glm
+if(WIN32)
+  set(glm_INCLUDE_DIR "${env}/glm/33b4a621a697a305bc3a7610d290677b96beb181.log") # for .gitignore contains this
+endif()
+
 ###############
 #######################################################################################################
 
@@ -99,15 +105,19 @@ if(WIN32)
     set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_target_properties(${GAME1} PROPERTIES
       WIN32_EXECUTABLE TRUE
-      LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+      LINK_FLAGS "/SUBSYSTEM:WINDOWS" # "/ENTRY:mainCRTStartup"
     )
   endif()
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" "/O2")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" "/Od" "/W4")
 endif()
 
 if(WIN32)
-  target_include_directories(${LIBBASE} PRIVATE ${BASE_INCLUDE} ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+  target_include_directories(${LIBBASE} PRIVATE
+    ${BASE_INCLUDE}
+    ${glm_INCLUDE_DIR}
+    ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR}
+  )
   target_link_libraries(${LIBBASE} PRIVATE zlibstatic)
 elseif(LINUX)
   target_include_directories(${LIBBASE} PRIVATE ${BASE_INCLUDE} ${ZLIB_INCLUDE_DIRS})
@@ -117,13 +127,13 @@ endif()
 if(WIN32)
   target_include_directories(${MAINPROJECT} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE}
-    ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} 
     ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
     ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
     ${utfcpp_INCLUDE_DIR}
+    ${glm_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
-    ${LIBBASE}
+    # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     freetype
   )
@@ -132,9 +142,10 @@ if(WIN32)
     ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
     ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
     ${utfcpp_INCLUDE_DIR}
+    ${glm_INCLUDE_DIR}
   )
   target_link_libraries(${GAME1} PRIVATE 
-    ${LIBBASE}
+    # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     freetype
   )
@@ -146,7 +157,7 @@ elseif(LINUX)
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${MAINPROJECT} PRIVATE 
-    ${LIBBASE}
+    # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
@@ -158,7 +169,7 @@ elseif(LINUX)
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${GAME1} PRIVATE 
-    ${LIBBASE}
+    # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}

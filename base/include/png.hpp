@@ -6,19 +6,13 @@
 namespace vas {
 namespace png {
 
-extern "C++" void write_uint32( std::ofstream& file, uint32_t value );
-extern "C++" void write_chunk( std::ofstream& file,
-                               const string_view& type,
-                               const std::vector<uint8_t>& data );
-
 struct pngConfig
 {
   u8 bit_depth { 8 };
-  GSetter( bit_depth ) u8 color_type { 2 };
-  GSetter( color_type ) u8 compression_method { 0 };
-  GSetter( compression_method ) u8 filter_method { 0 };
-  GSetter( filter_method ) u8 interlace_method { 0 };
-  GSetter( interlace_method )
+  u8 color_type { 2 };
+  u8 compression_method { 0 };
+  u8 filter_method { 0 };
+  u8 interlace_method { 0 };
 };
 
 struct png

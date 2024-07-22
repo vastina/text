@@ -1,51 +1,57 @@
 #ifndef _MINESWEEPER_LAUNCH_H_
 #define _MINESWEEPER_LAUNCH_H_
 
-#include "window.hpp"
 #include "game.hpp"
-
-#include <array>
-#include <string_view>
 
 namespace vas {
 namespace mw {
 
+enum option_t : u8
+{
+  easy,
+  medium,
+  hard,
+  exit
+};
+constexpr static array<string_view, 4> option_str { "easy", "medium", "hard", "exit" };
+
 class menu
 {
 private:
-  typeSetter* options[4];
+  Player window;
+  DrawBoard board;
+  array<typeSetter*, 4> options;
   struct miniState
   {
     bool leftdown { false };
     i32 lastx { 0u };
     i32 lasty { 0u };
-    u8 inRect { 0u };
+    option_t inRect { 0u };
     bool shouldStart { false };
   } state {};
-  constexpr static std::array<std::string_view, 4> option_str { "easy", "medium", "hard", "exit" };
 
 public:
-  menu( DrawBoard& board )
+  menu( const char* title, u32 width = 200, u32 height = 360 )
+    : window { title, width, height }, board { window.CreateTexture(), width, height }
   {
-    const u32 width = board.pic.width;
-    const u32 height = board.pic.height;
     for ( int i = 0; auto& op : options ) {
-      op = new typeSetter( std::string( option_str[i++] ), board );
+      op = new typeSetter( string( option_str[i] ), board );
       op->background = toRGB( Color::not_visible );
-      op->setRect( width / 2 - 75, height / 4 + i * 70, 150, 50 );
+      op->setRect( width / 2 - 75, 50 + i++ * 70, 150, 50 );
       op->config.draw_start_x = 10;
       op->config.draw_start_y = 10;
       op->LoadContent();
     }
+    initEvent();
   }
   ~menu()
   {
     for ( auto& i : options )
       delete i;
   }
-  void initEvent( Player& window )
+  void initEvent()
   {
-    window.addhandle( SDL_MOUSEMOTION, [this]( const SDL_Event& e ) {
+    window.addEventhandle( SDL_MOUSEMOTION, [this]( const SDL_Event& e ) {
       state.lastx = e.motion.x;
       state.lasty = e.motion.y;
     } );
@@ -54,7 +60,7 @@ public:
              return true;
       },
       [this]() {
-        for ( int i = 0; i < 4; i++ ) {
+        for ( int i = 0; i < options.size(); i++ ) {
           if ( options[i]->posInRect( state.lastx, state.lasty ) ) {
             options[i]->background = toRGB( Color::mark_as_mine );
           } else {
@@ -62,30 +68,30 @@ public:
           }
         }
       } );
-    window.addhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) {
+    window.addEventhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) {
       state.leftdown = true;
       state.lastx = e.button.x;
       state.lasty = e.button.y;
       for ( int i = 0; auto& op : options ) {
         if ( op->posInRect( state.lastx, state.lasty ) ) {
-          state.inRect = i;
+          state.inRect = option_t( i );
           op->background = toRGB( Color::mark_as_mine );
           break;
         }
         i++;
       }
     } );
-    window.addhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) {
+    window.addEventhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) {
       state.shouldStart = state.leftdown && std::abs( state.lastx - e.button.x ) < 10
                           && std::abs( state.lasty - e.button.y ) < 10
                           && options[state.inRect]->posInRect( e.button.x, e.button.y );
     } );
   }
-  u8 getOption( Player& window )
+  option_t getOption()
   {
     while ( true ) {
       if ( window.ShouldQuit() )
-        return 3;
+        return option_t::exit;
       options[0]->b.ClearBuffer();
       {
         for ( auto& op : options )
@@ -98,40 +104,40 @@ public:
         return state.inRect;
       }
     }
-    return 0xff;
+    return option_t::exit;
   }
 };
 
 class launcher
 {
 public:
-  static inline void Start()
+  static inline void Start(const char* title = "Minesweeper")
   {
-    constexpr u32 ww { 300u };
-    constexpr u32 hh { 600u };
-    while ( true ) {
-      u8 option;
+    auto option { u8( 1919810 % 114514 ) };
+    while ( option != option_t::exit ) {
       {
-        Player wd( "Minesweeper", ww, hh );
-        DrawBoard b( wd.CreateTexture(), ww, hh );
-        b.config.background = { 0x22, 0x22, 0x22 };
-        menu m( b );
-        m.initEvent( wd );
-        option = m.getOption( wd );
+        // for destructing menu, scope it
+        menu m { title };
+        option = m.getOption();
       }
-      {
-        if ( option == 3 )
+      switch ( option ) {
+        case option_t::easy: {
+          Game g( 8, 8, 10, 320, 320, title );
+          g.MainLoop();
           break;
-        if ( option == 0 ) {
-          Game g( 8, 8, 10, 500, 500 );
-          g.MainLoop();
-        } else if ( option == 1 ) {
-          Game g( 16, 16, 40, 900, 900 );
-          g.MainLoop();
-        } else if ( option == 2 ) {
-          Game g {};
-          g.MainLoop();
         }
+        case option_t::medium: {
+          Game g( 16, 16, 40, 480, 480, title );
+          g.MainLoop();
+          break;
+        }
+        case option_t::hard: {
+          Game g( 16, 30, 99, ScreenWidth / 2 - 50, ScreenHeight / 2 - 50, title );
+          g.MainLoop();
+          break;
+        }
+        default:
+          break;
       }
     }
   }

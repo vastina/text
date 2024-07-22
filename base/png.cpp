@@ -1,13 +1,14 @@
-#include "png.hpp"
+#include <zlib.h>
 
 #include <fstream>
-#include <zlib.h>
+
+#include "png.hpp"
 
 namespace vas {
 namespace png {
 
 namespace {
-inline u32 calculate_crc32( const std::vector<uint8_t>& data )
+inline u32 calculate_crc32( const vector<uint8_t>& data )
 {
   return crc32(
     0L, reinterpret_cast<const Bytef*>( data.data() ), static_cast<u32>( data.size() ) );
@@ -22,13 +23,13 @@ void write_uint32( std::ofstream& file, uint32_t value )
   file.put( value & 0xFF );
 }
 
-void write_chunk( std::ofstream& file, const string_view& type, const std::vector<uint8_t>& data )
+void write_chunk( std::ofstream& file, const string_view& type, const vector<uint8_t>& data )
 {
   write_uint32( file, static_cast<u32>( data.size() ) );
   file.write( type.data(), 4 );
   file.write( reinterpret_cast<const char*>( data.data() ), data.size() );
 
-  std::vector<uint8_t> crc_data( type.begin(), type.end() );
+  vector<uint8_t> crc_data( type.begin(), type.end() );
   crc_data.insert( crc_data.end(), data.begin(), data.end() );
 
   uint32_t crc = calculate_crc32( crc_data );
@@ -58,7 +59,7 @@ void png::write()
     fs.write( reinterpret_cast<const char*>( png_signature ), 8 );
   }
   {
-    std::vector<uint8_t> ihdr( 13 );
+    vector<uint8_t> ihdr( 13 );
     ihdr[0] = ( width >> 24 ) & 0xFF;
     ihdr[1] = ( width >> 16 ) & 0xFF;
     ihdr[2] = ( width >> 8 ) & 0xFF;
@@ -76,8 +77,7 @@ void png::write()
   }
   {
     // todo, config
-    std::vector<uint8_t> compressed_data( ::compressBound( static_cast<uLongf>( data.size() ) )
-                                          + 4 );
+    vector<uint8_t> compressed_data( ::compressBound( static_cast<uLongf>( data.size() ) ) + 4 );
     {
       constexpr char idat_signature[4] = { 'I', 'D', 'A', 'T' };
       compressed_data[0] = idat_signature[0];
@@ -101,21 +101,6 @@ void png::write()
     write_chunk( fs, "IEND", {} );
   }
   fs.close();
-}
-
-void png::DrawChar( const u32 width,
-                    const u32 height,
-                    const u8* buffer,
-                    const u32 xoffst,
-                    const u32 yoffst )
-{
-  for ( u32 y = 0; y < height; y++ ) {
-    for ( u32 x = 0; x < width; x++ ) {
-      auto val { buffer[y * width + x] };
-      //      if(val > 16)
-      setIndex( x + xoffst, y + yoffst, { val, val, val } );
-    }
-  }
 }
 
 }; // namespace png

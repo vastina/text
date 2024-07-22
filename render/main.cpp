@@ -1,4 +1,5 @@
 #include "text.hpp"
+
 #include "main.hpp"
 
 using namespace std::chrono_literals;
@@ -19,6 +20,7 @@ int main( int argc, char* argv[] )
 
     vas::typeSetter load { "====================================", b };
     load.setRect( 100, hh - 200, ww - 200, 200 );
+    load.config.draw_start_y = 7;
     load.config.ygap = 12;
     load.background = { 0x66, 0xcd, 0xaa };
     load.LoadContent();
@@ -29,11 +31,11 @@ int main( int argc, char* argv[] )
     Title.config.char_height *= 2;
     Title.background = { 0x8a, 0x2b, 0xe2 };
     Title.LoadContent();
-    Title.calculateContent();
+    Title.calculateContent(true, true);
 
     mousehandle m { b };
-    player.addhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
-    player.addhandle( SDL_MOUSEBUTTONUP, [&]( const SDL_Event& e ) {
+    player.addEventhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
+    player.addEventhandle( SDL_MOUSEBUTTONUP, [&]( const SDL_Event& e ) {
       m.DealUp( e );
       std::vector<u32> inRect {};
       const auto clip { [&]( const vas::typeSetter& t ) {
@@ -52,7 +54,7 @@ int main( int argc, char* argv[] )
         SDL_SetClipboardText( str.data() );
       }
     } );
-    player.addhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
+    player.addEventhandle( SDL_MOUSEMOTION, [&m]( const SDL_Event& e ) { m.DealMove( e ); } );
     player.addStatehandle( [&m] { return !m.moved_last_frame && m.leftdown; },
                            [&m] { m.DealDownState(); } );
 

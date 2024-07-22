@@ -1,10 +1,10 @@
 #ifndef _MINESWEEPER_BOARD_H_
 #define _MINESWEEPER_BOARD_H_
 
-#include "text.hpp"
-
 #include <random>
 #include <functional>
+
+#include "text.hpp"
 
 namespace vas {
 namespace mw {
@@ -15,8 +15,8 @@ private:
   u32 rows;
   u32 cols;
   u32 mines;
-  std::vector<std::vector<char>> board;
-  std::vector<std::vector<bool>> visible;
+  vector<vector<char>> board;
+  vector<vector<bool>> visible;
 
   bool hit_mine { false };
   bool first_click { true };
@@ -91,9 +91,9 @@ private:
       for ( int j = -1; j <= 1; j++ ) {
         if ( i == 0 && j == 0 )
           continue;
-        if ( row + i < 0 || row + i >= rows )
+        if ( row + i >= rows )
           continue;
-        if ( col + j < 0 || col + j >= cols )
+        if ( col + j >= cols )
           continue;
         if ( board[row + i][col + j] == '9' )
           num++;
@@ -115,8 +115,9 @@ private:
 public:
   void click( pos p )
   {
-    auto [x, y] { p };
-    if ( x < 0 || x >= rows || y < 0 || y >= cols )
+    auto x = p.x;
+    auto y = p.y;
+    if ( x >= rows || y >= cols )
       return;
     if ( visible[x][y] )
       return;
@@ -153,17 +154,11 @@ enum Color : u32
   hit_mine = 0xff1010
 };
 
-static inline RGB toRGB( Color color )
-{
-  u32 c = color;
-  return { u8( ( c >> 16 ) & 0xff ), u8( ( c >> 8 ) & 0xff ), u8( c & 0xff ) };
-}
-
 class Drawer
 {
   u32 rows;
   u32 cols;
-  std::vector<std::vector<typeSetter*>> drawer;
+  vector<vector<typeSetter*>> drawer;
 
   u32 width;
   u32 height;
@@ -183,7 +178,7 @@ public:
     const u32 unit_height { height / rows };
     u32 scale { UINT32_MAX };
     {
-      if ( rows > 16 || cols > 16 )
+      if ( rows > 10 || cols > 10 )
         scale = 3;
     }
     u32 draw_off_scale { 3u };

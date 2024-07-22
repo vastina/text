@@ -1,14 +1,10 @@
 #ifndef _SDL_CXX_H_
 #define _SDL_CXX_H_
 
-#include <SDL.h>
-// #include <SDL_image.h>
-
 #include <iostream>
 #include <functional>
-#include <utility>
+#include <stdexcept>
 
-#include "vasdef.hpp"
 #include "DrawBoard.hpp"
 
 namespace vas {
@@ -45,6 +41,12 @@ public:
   }
 
   void ChangeTitle( const char* title ) { SDL_SetWindowTitle( wd, title ); }
+  void ChangeWindowSize( u32 w, u32 h )
+  {
+    width = w;
+    height = h;
+    SDL_SetWindowSize( wd, w, h );
+  }
   void Render( const DrawBoard& b )
   {
     SDL_Texture* texture = b.pic.texture;
@@ -85,10 +87,10 @@ private:
   std::unordered_map<u32, std::function<void( const SDL_Event& )>> handles {
     { SDL_QUIT, [this]( const SDL_Event& ) { quit = true; } } };
 
-  std::vector<std::pair<std::function<bool()>, std::function<void()>>> statehandles { 0 };
+  vector<std::pair<std::function<bool()>, std::function<void()>>> statehandles { 0 };
 
 public:
-  void addhandle( u32 EventType, const std::function<void( const SDL_Event& )>& handle )
+  void addEventhandle( u32 EventType, const std::function<void( const SDL_Event& )>& handle )
   {
     handles.insert_or_assign( EventType, handle );
   }
@@ -97,7 +99,8 @@ public:
   {
     statehandles.push_back( std::make_pair( InStatejudge, handle ) );
   }
-  void removehandle( u32 EventType ) { handles.erase( EventType ); }
+  void removeEventhandle( u32 EventType ) { handles.erase( EventType ); }
+  void ClearEventhandle() { handles.clear(); }
   void clearStatehandle() { statehandles.clear(); }
   void HandleEvent()
   {

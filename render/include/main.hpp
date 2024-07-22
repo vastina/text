@@ -17,7 +17,7 @@ struct mousehandle : vas::mousehandle
     yfirst = e.button.y;
     xcur = xfirst;
     ycur = yfirst;
-    // if ( down ) {
+    // if ( leftdown ) {
     //   // error, if down, why there is another down
     // } else {
     // }

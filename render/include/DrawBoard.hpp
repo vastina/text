@@ -1,8 +1,6 @@
 #ifndef _DRAW_BOARD_H_
 #define _DRAW_BOARD_H_
 
-#include <SDL.h>
-#include "vasdef.hpp"
 #include "util.hpp"
 
 namespace vas {
@@ -26,19 +24,63 @@ struct pixeler
   {
     if ( x > width || y > height )
       return;
-    pixels[y * width + x] = ( color.r << 16 ) | ( color.g << 8 ) | color.b;
+    pixels[y * width + x] = RGBtoU32( color );
   }
-  void setLine( u32 x, u32 y, RGB color ) const;
+  void setLine( pos from, pos to, RGB color ) const
+  {
+    int dx = static_cast<int>( to.x - from.x );
+    int dy = static_cast<int>( to.y - from.y );
+    int stepX { 1 };
+    int stepY { 1 };
+
+    if ( dx < 0 ) {
+      stepX = -1;
+      dx = -dx;
+    }
+    if ( dy < 0 ) {
+      stepY = -1;
+      dy = -dy;
+    }
+    int d2x = 2 * dx;
+    int d2y = 2 * dy;
+    int d2y_minus_d2x = d2y - d2x;
+    int sx = from.x;
+    int sy = from.y;
+
+    if ( dy <= dx ) {
+      int flag = d2y - dx;
+      for ( int i = 0; i <= dx; i++ ) {
+        setIndex( sx, sy, color );
+        sx += stepX;
+        if ( flag <= 0 ) {
+          flag += d2y;
+        } else {
+          sy += stepY;
+          flag += d2y_minus_d2x;
+        }
+      }
+    } else {
+      int flag = d2x - dy;
+      for ( int i = 0; i <= dy; i++ ) {
+        setIndex( sx, sy, color );
+        sy += stepY;
+        if ( flag <= 0 ) {
+          flag += d2x;
+        } else {
+          sx += stepX;
+          flag -= d2y_minus_d2x;
+        }
+      }
+    }
+  }
   void setLine( u32 y, u32 x_start, u32 x_end, RGB color ) const
   {
     auto pos { y * width };
-    std::fill( pixels + pos + x_start,
-               pixels + pos + x_end,
-               ( color.r << 16 ) | ( color.g << 8 ) | color.b );
+    std::fill( pixels + pos + x_start, pixels + pos + x_end, RGBtoU32( color ) );
   }
   void FillBackground( RGB color ) const
   {
-    std::fill( pixels, pixels + width * height, ( color.r << 16 ) | ( color.g << 8 ) | color.b );
+    std::fill( pixels, pixels + width * height, RGBtoU32( color ) );
   }
   void ClearBuffer() const { std::fill( pixels, pixels + width * height, 0 ); }
 };
@@ -46,7 +88,7 @@ struct pixeler
 struct DrawBoard
 {
   pixeler pic;
-  std::vector<bool> drawable;
+  vector<bool> drawable;
   struct Config
   {
     RGB background { 0x22, 0x22, 0x22 };

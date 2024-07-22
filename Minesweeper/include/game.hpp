@@ -31,8 +31,8 @@ public:
     , drawer( base_board, game_board )
   // , mouse_handle( base_board )
   {
-    window.addhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
-    window.addhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
+    window.addEventhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
+    window.addEventhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
   }
   ~Game() = default;
   void MainLoop()
@@ -40,7 +40,7 @@ public:
     bool gaming { true };
     // const auto play_again { [] {
     //   std::cout << "Play again? (y/n): ";
-    //   std::string ans;
+    //   string ans;
     //   std::cin >> ans;
     //   return ans == "y";
     // } };
@@ -70,9 +70,9 @@ public:
           //   reset();
           // else
           // break;
+          // prevent crash, clear all handles
           window.clearStatehandle();
-          window.removehandle( SDL_MOUSEBUTTONDOWN );
-          window.removehandle( SDL_MOUSEBUTTONUP );
+          window.ClearEventhandle();
         }
       }
     }
@@ -81,8 +81,8 @@ public:
 private:
   void reset()
   {
-    window.addhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
-    window.addhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
+    window.addEventhandle( SDL_MOUSEBUTTONDOWN, [this]( const SDL_Event& e ) { MouseDown( e ); } );
+    window.addEventhandle( SDL_MOUSEBUTTONUP, [this]( const SDL_Event& e ) { MouseUp( e ); } );
     base_board.ClearBuffer();
     game_board.reset();
     drawer.reset();
@@ -115,25 +115,24 @@ private:
     // }
     ms.xcur = std::min( std::max( 0, e.button.x ), static_cast<int>( base_board.pic.width ) );
     ms.ycur = std::min( std::max( 0, e.button.y ), static_cast<int>( base_board.pic.height ) );
-
-    bool not_moved { std::abs( ms.xcur - ms.xfirst ) < 10 && std::abs( ms.ycur - ms.yfirst ) < 10 };
-    if ( not_moved && type == SDL_BUTTON_LEFT ) {
-      game_board.click( drawer.CalculatePos( ms.xcur, ms.ycur ) );
-    } else if ( not_moved && type == SDL_BUTTON_RIGHT ) {
-      auto [x, y] = drawer.CalculatePos( ms.xcur, ms.ycur );
-      if ( game_board.getvisible()[x][y] ) {
-        return;
+    if ( std::abs( ms.xcur - ms.xfirst ) < 10 && std::abs( ms.ycur - ms.yfirst ) < 10 ) {
+      auto p { drawer.CalculatePos( ms.xcur, ms.ycur ) };
+      if ( type == SDL_BUTTON_LEFT ) {
+        game_board.click( p );
+      } else if ( type == SDL_BUTTON_RIGHT ) {
+        if ( game_board.getvisible()[p.x][p.y] )
+          return;
+        drawer.mark_as_mine( p.x, p.y );
       }
-      drawer.mark_as_mine( x, y );
-    }
-    // prevent crash, clear all handles
-    if ( game_board.HitMine() ) {
-      window.ChangeTitle( "Lose" );
-    } else if ( game_board.Success() ) {
-      for ( auto it = game_board.getvisible().begin(); it != game_board.getvisible().end(); it++ ) {
-        std::fill( it->begin(), it->end(), true );
+      if ( game_board.HitMine() ) {
+        window.ChangeTitle( "Lose" );
+      } else if ( game_board.Success() ) {
+        auto& visible { game_board.getvisible() };
+        for ( auto it = visible.begin(); it != visible.end(); it++ ) {
+          std::fill( it->begin(), it->end(), true );
+        }
+        window.ChangeTitle( "Win" );
       }
-      window.ChangeTitle( "Win" );
     }
   }
 };

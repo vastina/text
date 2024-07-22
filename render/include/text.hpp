@@ -6,9 +6,8 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <stdexcept>
 
-#include "vasdef.hpp"
-#include "util.hpp"
 #include "DrawBoard.hpp"
 
 namespace vas {
@@ -18,27 +17,27 @@ class Text
 private:
   FT_Library library;
   std::unordered_map<u64, FT_Face> faces;
-  std::string font_path;
+  string font_path;
   u32 maxcharheight { 0u };
 
 public:
-  static inline std::vector<uint32_t> utf8_to_utf32( const std::string& utf8_str )
+  static inline vector<uint32_t> utf8_to_utf32( const string& utf8_str )
   {
-    std::vector<uint32_t> utf32_str;
+    vector<uint32_t> utf32_str;
     auto it = utf8_str.begin();
     while ( it != utf8_str.end() ) {
       utf32_str.push_back( utf8::next( it, utf8_str.end() ) );
     }
     return utf32_str;
   }
-  static inline std::string utf32_to_utf8( const std::vector<uint32_t>& utf32_str )
+  static inline string utf32_to_utf8( const vector<uint32_t>& utf32_str )
   {
-    std::string utf8_str;
+    string utf8_str;
     utf8::utf32to8( utf32_str.begin(), utf32_str.end(), back_inserter( utf8_str ) );
     return utf8_str;
   }
 
-  Text( std::string ttfpath = "KAISG.ttf" )
+  Text( string ttfpath = "KAISG.ttf" )
   {
     if ( !std::filesystem::exists( ttfpath ) ) {
       font_path = SearchTTf();
@@ -86,6 +85,13 @@ public:
   u32 getMaxcharheight() const { return maxcharheight; }
 };
 
+enum TextPosStyle : u8
+{
+  left_align,
+  right_align,
+  center,
+};
+
 struct typeSetter
 {
   u32 left { 0 };
@@ -103,18 +109,18 @@ struct typeSetter
     // ...
   } config {};
   RGB background { 0x22, 0x22, 0x22 };
-  std::vector<u32> content;
-  //  std::string content;
+  vector<u32> content;
+  //  string content;
   bool cache_avaliable { false };
-  std::vector<pos> poscache;
+  vector<pos> poscache;
   DrawBoard& b;
   Text charConfig;
 
   // Deng.ttf, 等线, form C:\\Windows\\Fonts
-  typeSetter( const std::string& text,
+  typeSetter( const string& text,
               vas::DrawBoard& board,
               typeSetter::Config Config = { 7, 0, 0, 32 * 48, 0, 0 },
-              const std::string& FontPath = "Deng.ttf" )
+              const string& FontPath = "Deng.ttf" )
     : config( Config )
     , content { Text::utf8_to_utf32( text ) }
     , b { board }
@@ -130,7 +136,7 @@ struct typeSetter
     cache_avaliable = false;
   }
   // calculate height width and char_pos
-  void calculateContent()
+  void calculateContent( bool changeWidth = false, bool changeHeight = false )
   {
     const auto length { content.size() };
     u32 w_current { 0u };
@@ -154,8 +160,14 @@ struct typeSetter
     }
     w_max = std::max( w_max, w_current );
     height = y_offset + charConfig.getMaxcharheight() + config.ygap;
-    width = w_max;
-    cache_avaliable = true;
+    if ( changeWidth )
+      width = w_max;
+    if ( changeHeight )
+      cache_avaliable = true;
+  }
+  void setPosStyle()
+  {
+    // todo
   }
 
   void LoadContent()
@@ -197,7 +209,7 @@ struct typeSetter
         }
         const FT_Bitmap* bitmap { charConfig.LoadCharBitmap( content[i] ) };
 
-        poscache[i] = { left + w_current, top + y_offset };
+        poscache[i] = { left + w_current, top + y_offset + ( charConfig.getMaxcharheight() - bitmap->rows ) };
         b.DrawChar( bitmap->width,
                     bitmap->rows,
                     bitmap->buffer,
@@ -219,9 +231,16 @@ struct typeSetter
                     bitmap->rows,
                     bitmap->buffer,
                     poscache[i].x,
-                    poscache[i].y + ( charConfig.getMaxcharheight() - bitmap->rows ),
+                    poscache[i].y,
                     background );
       }
+    }
+
+    for(u32 i{0u}; i<1; i++) {
+      b.pic.setLine( {left, top+i}, {left + width, top+i}, {0, 0, 0} );
+      b.pic.setLine( {left, top+height-i}, {left + width, top+height-i}, {0, 0, 0} );
+      b.pic.setLine( {left+i, top}, {left+i, top + height}, {0, 0, 0} );
+      b.pic.setLine( {left+width-i, top}, {left+width-i, top + height}, {0, 0, 0} );
     }
   }
   void FillBackgroud() const
@@ -253,7 +272,8 @@ struct typeSetter
 struct DomNode
 {
   typeSetter* ts { nullptr };
-  std::vector<DomNode*> children;
+  DomNode* parent {nullptr};
+  vector<DomNode*> children;
 
   static inline void DeleteTree( DomNode* root )
   {
