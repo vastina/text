@@ -1,6 +1,5 @@
 #include "launch.hpp"
 
-const static vas::BeforeStart bs {};
 int main( int argc, char* argv[] )
 {
   try {

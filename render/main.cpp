@@ -3,7 +3,6 @@
 #include "main.hpp"
 
 using namespace std::chrono_literals;
-const static vas::BeforeStart bs {};
 int main( int argc, char* argv[] )
 {
   try {
@@ -15,6 +14,8 @@ int main( int argc, char* argv[] )
     vas::typeSetter ts { vas::Readfile( "test/content.txt" ), b, {}, "simhei.ttf" };
     ts.setRect( 100, 100, ww - 200, hh - 350 );
     ts.background = { 0x70, 0x80, 0x90 };
+    ts.config.char_height -= ts.config.char_height / 3;
+    ts.config.xgap = 2;
     ts.LoadContent();
     ts.calculateContent();
 
@@ -24,14 +25,14 @@ int main( int argc, char* argv[] )
     load.config.ygap = 12;
     load.background = { 0x66, 0xcd, 0xaa };
     load.LoadContent();
-    load.calculateContent();
+    load.calculateContent( true, true );
 
     vas::typeSetter Title { "这是标题", b, {}, "simhei.ttf" };
     Title.setRect( 300, 20, ww - 400, 70 );
     Title.config.char_height *= 2;
     Title.background = { 0x8a, 0x2b, 0xe2 };
     Title.LoadContent();
-    Title.calculateContent(true, true);
+    Title.calculateContent( true, true );
 
     mousehandle m { b };
     player.addEventhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );

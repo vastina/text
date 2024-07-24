@@ -147,6 +147,7 @@ private:
     return true;
   }
 };
+const static vas::BeforeStart bs {};
 }
 
 namespace vas {
