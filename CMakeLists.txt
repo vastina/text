@@ -25,6 +25,9 @@ project(${LIBBASE})
 set(MAINPROJECT render)
 project(${MAINPROJECT})
 set(GAME1 Minesweeper)
+project(${GAME1})
+set(GAME2 LightsOff)
+project(${GAME2})
 
 #find_packages#########################################################################################
 ###############
@@ -98,12 +101,21 @@ set(GAME1_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME1}/include")
 file(GLOB SOURCES_GAME1 "${CMAKE_SOURCE_DIR}/${GAME1}/*.cpp")
 add_executable(${GAME1} ${SOURCES_GAME1})
 
+set(GAME2_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME2}/include")
+file(GLOB SOURCES_GAME2 "${CMAKE_SOURCE_DIR}/${GAME2}/*.cpp")
+add_executable(${GAME2} ${SOURCES_GAME2})
+
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)  
     set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_target_properties(${GAME1} PROPERTIES
+      WIN32_EXECUTABLE TRUE
+      LINK_FLAGS "/SUBSYSTEM:WINDOWS" # "/ENTRY:mainCRTStartup"
+    )
+    set_property(TARGET ${GAME2} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
+    set_target_properties(${GAME2} PROPERTIES
       WIN32_EXECUTABLE TRUE
       LINK_FLAGS "/SUBSYSTEM:WINDOWS" # "/ENTRY:mainCRTStartup"
     )
@@ -147,6 +159,17 @@ if(WIN32)
   target_link_libraries(${GAME1} PRIVATE 
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
+    freetype
+  )
+  target_include_directories(${GAME2} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME2_INCLUDE}
+    ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
+    ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${utfcpp_INCLUDE_DIR}
+    ${glm_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME2} PRIVATE 
+    ${SDL2_LIBRARIES}
     freetype
   )
 elseif(LINUX)
