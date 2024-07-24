@@ -25,20 +25,17 @@ struct mousehandle : vas::mousehandle
   void DealUp( const SDL_Event& e ) override
   {
     leftdown = false;
-    xcur = std::max( std::min( 0, e.button.x ), static_cast<int>( b.pic.width ) );
-    ycur = std::max( std::min( 0, e.button.y ), static_cast<int>( b.pic.height ) );
+    xcur = std::min( std::max( 0, e.button.x ), static_cast<int>( b.pic.width ) );
+    ycur = std::min( std::max( 0, e.button.y ), static_cast<int>( b.pic.height ) );
   }
 
   void DealMove( const SDL_Event& e ) override
   {
-    if ( leftdown ) {
-      if ( e.button.x < 0 || e.button.y < 0 || static_cast<u64>( e.button.x ) > b.pic.width
-           || static_cast<u64>( e.button.y ) > b.pic.height ) {
-        return;
-      }
+    auto type = e.button.button;
+    if ( leftdown && type == SDL_BUTTON_LEFT ) {
       b.Clear_Coverable( xfirst, yfirst, xcur, ycur );
-      xcur = e.button.x;
-      ycur = e.button.y;
+      xcur = std::min( std::max( 0, e.button.x ), static_cast<int>( b.pic.width ) );
+      ycur = std::min( std::max( 0, e.button.y ), static_cast<int>( b.pic.height ) );
       b.DrawRect_Coverable( xfirst, yfirst, xcur, ycur, { 0, 0, 0xff } );
     }
     moved_last_frame = true;
