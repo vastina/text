@@ -122,7 +122,7 @@ public:
   Drawer( DrawBoard& b ) : width( b.pic.width ), height( b.pic.height )
   {
     tryTimes = new typeSetter { "", b };
-    tryTimes->setRect( 10, 10, 50, 30 );
+    tryTimes->setRect( 10, 10, 70, 30 );
     tryTimes->config.draw_start_x += 5;
     tryTimes->config.draw_start_y += 5;
     const u32 unit_width { width / cols };

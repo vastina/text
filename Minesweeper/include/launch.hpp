@@ -111,7 +111,7 @@ public:
 class launcher
 {
 public:
-  static inline void Start(const char* title = "Minesweeper")
+  static inline void Start( const char* title = "Minesweeper" )
   {
     auto option { u8( 1919810 % 114514 ) };
     while ( option != option_t::exit ) {
