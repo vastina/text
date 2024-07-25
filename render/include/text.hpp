@@ -78,7 +78,7 @@ public:
     maxcharheight
       = maxcharheight > face->glyph->bitmap.rows ? maxcharheight : face->glyph->bitmap.rows;
     maxcharwidth
-      = maxcharwidth > face->glyph->bitmap.width ? maxcharwidth : face->glyph->bitmap.rows;
+      = maxcharwidth > face->glyph->bitmap.width ? maxcharwidth : face->glyph->bitmap.width;
     faces.insert( std::make_pair( char_code, face ) );
   }
 
@@ -137,10 +137,10 @@ struct typeSetter
 
   void setRect( int l, int t, int w, int h )
   {
-    left = l;
-    top = t;
-    width = w;
-    height = h;
+    left = std::min( (u32)std::max( 0, l ), b.pic.width );
+    top = std::min( (u32)std::max( 0, t ), b.pic.height );
+    width = std::min( u32( w ), b.pic.width - left );
+    height = std::min( u32( h ), b.pic.height - top );
     cache_avaliable = false;
   }
 
@@ -176,13 +176,14 @@ private:
       y_offset += maxH + config.ygap;
     }
     const u32 diff { maxH - bitmap->rows };
-    u32 makeMid { 0u };
-    if ( maxW > bitmap->width )
-      makeMid = ( maxW - bitmap->width ) / 2;
+    const u32 makeMid { ( maxW - bitmap->width ) / 2 };
     const u32 posx { left + w_current + makeMid };
     const u32 posy { top + y_offset };
     if ( low_chars.contains( ch ) ) {
-      poscache[i] = { posx, posy + diff + ( diff * 3 ) / 4 };
+      if ( diff > 0 )
+        poscache[i] = { posx, posy + diff + ( diff * 3 ) / 4 };
+      else
+        poscache[i] = { posx, posy + maxH / 4 };
     } else if ( high_chars.contains( ch ) ) {
       poscache[i] = { posx, posy + diff / 2 };
     } else if ( braces.contains( ch ) ) {
@@ -209,8 +210,7 @@ public:
       for ( u32 i = 0; i < length; i++ ) {
         (void)calculateOne( i, w_current, w_max, y_offset );
       }
-      // a magic number, for preventing '=' from cross the background 
-      width = w_max + std::max( config.xgap + config.draw_start_x * 2, 7u );
+      width = std::min( w_max + config.xgap + config.draw_start_x * 2, b.pic.width - left );
     } else {
       for ( u32 i = 0; i < length; i++ ) {
         (void)calculateOne( i, w_current, y_offset );
