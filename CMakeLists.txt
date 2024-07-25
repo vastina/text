@@ -13,10 +13,10 @@ if(WIN32)
 elseif(LINUX)
   set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_BUILD_TYPE Debug)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 endif()
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # this one is PTHONY
 project(text-render)
@@ -192,6 +192,18 @@ elseif(LINUX)
     ${utfcpp_INCLUDE_DIR}
   )
   target_link_libraries(${GAME1} PRIVATE 
+    # ${LIBBASE}
+    ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
+    ${FREETYPE_LIBRARIES}
+    ${X11_LIBRARIES}
+  )
+  target_include_directories(${GAME2} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME2_INCLUDE}
+    ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} # ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${X11_INCLUDE_DIR}
+    ${utfcpp_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME2} PRIVATE 
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
