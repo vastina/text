@@ -11,23 +11,25 @@ int main( int argc, char* argv[] )
     auto player { vas::Player( argc > 1 ? argv[1] : argv[0], ww, hh ) };
     vas::DrawBoard b { player.CreateTexture(), ww, hh };
 
-    vas::typeSetter ts { vas::Readfile( "test/content.txt" ), b, {}, "simhei.ttf" };
-    ts.setRect( 100, 100, ww - 200, hh - 350 );
+    vas::typeSetter ts {
+      vas::Readfile( "test/content.txt" ), b, {}, "C:/Windows/Fonts/consola.ttf" };
+    ts.setRect( 5, 100, ww - 10, hh - 250 );
     ts.background = { 0x70, 0x80, 0x90 };
-    ts.config.char_height -= ts.config.char_height / 3;
-    ts.config.xgap = 2;
+    ts.config.char_height -= ts.config.char_height * 3 / 5;
     ts.LoadContent();
     ts.calculateContent();
 
-    vas::typeSetter load { "====================================", b };
-    load.setRect( 100, hh - 200, ww - 200, 200 );
+    vas::typeSetter load {
+      "========================================================================================",
+      b };
+    load.setRect( 100, hh - 100, 1919810, 114514 );
     load.config.draw_start_y = 7;
     load.config.ygap = 12;
     load.background = { 0x66, 0xcd, 0xaa };
     load.LoadContent();
     load.calculateContent( true, true );
 
-    vas::typeSetter Title { "这是标题", b, {}, "simhei.ttf" };
+    vas::typeSetter Title { "这是标题", b, {} };
     Title.setRect( 300, 20, ww - 400, 70 );
     Title.config.char_height *= 2;
     Title.background = { 0x8a, 0x2b, 0xe2 };
