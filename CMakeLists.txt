@@ -45,13 +45,15 @@ endif()
 
 # FreeType
 if(WIN32)  
-  FetchContent_Declare(
-    freetype
-    SOURCE_DIR "${env}/freetype/2.13.2"
-    # clone once to local
-    # GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
-  )
-  FetchContent_MakeAvailable(freetype)
+  set(freetype_SOURCE_DIR "${env}/freetype/2.13.2")
+  set(freetype_lib "${freetype_SOURCE_DIR}/objs/x64/Release_Static/freetype.lib")
+#   FetchContent_Declare(
+#     freetype
+#     SOURCE_DIR "${env}/freetype/2.13.2"
+#     # clone once to local
+#     # GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+#   )
+#   FetchContent_MakeAvailable(freetype)
 elseif(LINUX)
   find_package(Freetype REQUIRED)
 endif()
@@ -147,7 +149,7 @@ if(WIN32)
   target_link_libraries(${MAINPROJECT} PRIVATE 
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
-    freetype
+    ${freetype_lib}
   )
   target_include_directories(${GAME1} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}
@@ -159,7 +161,7 @@ if(WIN32)
   target_link_libraries(${GAME1} PRIVATE 
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
-    freetype
+    ${freetype_lib}
   )
   target_include_directories(${GAME2} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME2_INCLUDE}
@@ -170,7 +172,7 @@ if(WIN32)
   )
   target_link_libraries(${GAME2} PRIVATE 
     ${SDL2_LIBRARIES}
-    freetype
+    ${freetype_lib}
   )
 elseif(LINUX)
   target_include_directories(${MAINPROJECT} PRIVATE
