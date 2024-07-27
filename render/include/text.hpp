@@ -51,7 +51,7 @@ struct typeSetter
               TextConfig Config = {},
               const string& FontPath = "C:/Windows/Fonts/Deng.ttf" )
     : config( Config )
-    , content { Text::utf8_to_utf32( text ) }
+    , content { std::move( Text::utf8_to_utf32( text ) ) }
     , b { board }
     , charConfig { FontPath }
   {}
@@ -92,7 +92,7 @@ private:
     if ( y_offset + charConfig.getMaxcharheight() >= height )
       return true;
 
-    if ( w_current > width ) {
+    if ( w_current + bitmap->width > width ) {
       w_current = config.draw_start_x;
       y_offset += maxH + config.ygap;
     }

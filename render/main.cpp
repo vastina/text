@@ -51,7 +51,7 @@ int main( int argc, char* argv[] )
       clip( load );
       clip( Title );
 
-      auto str = vas::Text::utf32_to_utf8( inRect );
+      auto str { std::move( vas::Text::utf32_to_utf8( inRect ) ) };
       if ( !str.empty() ) {
         std::cout << str << '\n';
         SDL_SetClipboardText( str.data() );
