@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 
 if(WIN32)
   # Enable Hot Reload for MSVC compilers if supported.
@@ -24,6 +24,8 @@ set(LIBBASE base)
 project(${LIBBASE})
 set(MAINPROJECT render)
 project(${MAINPROJECT})
+set(GL_SDL gl)
+project(${GL_SDL})
 set(GAME1 Minesweeper)
 project(${GAME1})
 set(GAME2 LightsOff)
@@ -78,6 +80,29 @@ find_package(SDL2 REQUIRED)
 # endif()
 # find_package(SDL2_image REQUIRED)
 
+
+# # glfw
+# if(WIN32)
+#   set(glfw_SOURCE_DIR   "${env}/glfw/3.4")
+#   set(glfw_include_dir  "${glfw_SOURCE_DIR}/include")
+#   set(glfw_lib_static   "${glfw_SOURCE_DIR}/lib-vc2022/glfw3_mt.lib")
+#   set(glfw_lib          "${glfw_SOURCE_DIR}/lib-vc2022/glfw3.lib")
+# endif()
+
+# # glew
+# if(WIN32)
+#   set(glew_SOURCE_DIR   "${env}/glew/2.2.0")
+#   set(glew_include_dir  "${glew_SOURCE_DIR}/include")
+#   set(glew_lib_static   "${glew_SOURCE_DIR}/lib/Release/x64/glew32s.lib")
+#   set(glew_lib          "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
+# endif()
+
+
+# stb
+if(WIN32)
+  set(stb_include_dir   "${env}/stb/include")
+endif()
+
 # x11
 if(LINUX)
   find_package(X11 REQUIRED)
@@ -107,10 +132,20 @@ set(GAME2_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME2}/include")
 file(GLOB SOURCES_GAME2 "${CMAKE_SOURCE_DIR}/${GAME2}/*.cpp")
 add_executable(${GAME2} ${SOURCES_GAME2})
 
+set(VK_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${VK_SDL}/include")
+file(GLOB SOURCES_VK_SDL "${CMAKE_SOURCE_DIR}/${VK_SDL}/*.cpp")
+add_executable(${VK_SDL} ${SOURCES_VK_SDL})
+
+
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)  
+    set_property(TARGET ${GL_SDL} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
+    # set_target_properties(${GL_SDL} PROPERTIES
+    #   WIN32_EXECUTABLE TRUE
+    #   LINK_FLAGS "/SUBSYSTEM:WINDOWS"
+    # )
     set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_target_properties(${GAME1} PROPERTIES
       WIN32_EXECUTABLE TRUE
@@ -150,6 +185,25 @@ if(WIN32)
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${freetype_lib}
+  )
+  target_include_directories(${GL_SDL} PRIVATE
+    ${BASE_INCLUDE} ${GL_SDL_INCLUDE}
+    # ${glfw_include_dir} ${glew_include_dir}
+    # ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
+    ${SDL2_INCLUDE_DIRS}
+    # ${utfcpp_INCLUDE_DIR}
+    ${stb_include_dir}
+    ${glm_INCLUDE_DIR}
+  )
+  target_link_libraries(${GL_SDL} PRIVATE 
+    ${SDL2_LIBRARIES}
+    # ${glfw_lib}
+    # ${glew_lib}
+    # C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\<version-num>\\um\\x64
+    # cl will search this path by default
+    "OpenGL32.lib"
+    "GlU32.Lib"
+    # ${freetype_lib}
   )
   target_include_directories(${GAME1} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}
