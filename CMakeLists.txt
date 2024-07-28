@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 if(WIN32)
   # Enable Hot Reload for MSVC compilers if supported.
@@ -24,6 +24,8 @@ set(LIBBASE base)
 project(${LIBBASE})
 set(MAINPROJECT render)
 project(${MAINPROJECT})
+set(VK_SDL vk)
+project(${VK_SDL})
 set(GL_SDL gl)
 project(${GL_SDL})
 set(GAME1 Minesweeper)
@@ -80,6 +82,12 @@ find_package(SDL2 REQUIRED)
 # endif()
 # find_package(SDL2_image REQUIRED)
 
+# vulkan
+if(WIN32)
+  # oh, shit scoop, do not use that to install vulkan
+  set(Vulkan_ROOT "D:/VulkanSDK/1.3.290.0")
+endif()
+find_package(Vulkan REQUIRED)
 
 # # glfw
 # if(WIN32)
@@ -136,6 +144,9 @@ set(VK_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${VK_SDL}/include")
 file(GLOB SOURCES_VK_SDL "${CMAKE_SOURCE_DIR}/${VK_SDL}/*.cpp")
 add_executable(${VK_SDL} ${SOURCES_VK_SDL})
 
+set(GL_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${GL_SDL}/include")
+file(GLOB SOURCES_GL_SDL "${CMAKE_SOURCE_DIR}/${GL_SDL}/*.cpp")
+add_executable(${GL_SDL} ${SOURCES_GL_SDL})
 
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -146,6 +157,7 @@ if(WIN32)
     #   WIN32_EXECUTABLE TRUE
     #   LINK_FLAGS "/SUBSYSTEM:WINDOWS"
     # )
+    set_property(TARGET ${VK_SDL} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_target_properties(${GAME1} PROPERTIES
       WIN32_EXECUTABLE TRUE
@@ -205,6 +217,15 @@ if(WIN32)
     "GlU32.Lib"
     # ${freetype_lib}
   )
+  target_include_directories(${VK_SDL} PRIVATE
+  ${BASE_INCLUDE} ${VK_SDL_INCLUDE}
+  ${SDL2_INCLUDE_DIRS}
+  ${glm_INCLUDE_DIR}
+)
+target_link_libraries(${VK_SDL} PRIVATE 
+  ${SDL2_LIBRARIES}
+  Vulkan::Vulkan
+)
   target_include_directories(${GAME1} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}
     ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
