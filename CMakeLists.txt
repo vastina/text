@@ -105,6 +105,10 @@ find_package(Vulkan REQUIRED)
 #   set(glew_lib          "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
 # endif()
 
+if(LINUX)
+  find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+  find_package(GLUT REQUIRED)
+endif()
 
 # stb
 if(WIN32)
@@ -261,6 +265,23 @@ elseif(LINUX)
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
+  )
+  target_include_directories(${GL_SDL} PRIVATE
+    ${BASE_INCLUDE} ${GL_SDL_INCLUDE}
+    ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
+  )
+  target_link_libraries(${GL_SDL} PRIVATE 
+    ${SDL2_LIBRARIES}
+    ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}
+  )
+  target_include_directories(${VK_SDL} PRIVATE
+    ${BASE_INCLUDE} ${VK_SDL_INCLUDE}
+    ${SDL2_INCLUDE_DIRS}
+  )
+  target_link_libraries(${VK_SDL} PRIVATE 
+    ${SDL2_LIBRARIES}
+    Vulkan::Vulkan
   )
   target_include_directories(${GAME1} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME1_INCLUDE}

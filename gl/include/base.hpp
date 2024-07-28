@@ -5,7 +5,11 @@
 #include <SDL_opengl.h>
 
 #include <GL/gl.h>
+#ifdef _WIN32
 #include <GL/GLU.h>
+#elif __linux__
+#include <GL/glu.h>
+#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
