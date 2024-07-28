@@ -5,6 +5,7 @@
 /out
 /build
 /build_win
+/static
 compile_commands.json
 
 *.ttf
