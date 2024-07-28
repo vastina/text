@@ -165,7 +165,8 @@ public:
   {
     FillBackgroud();
 
-    charnum = charnum > content.size() ? content.size() : charnum;
+    start = start > content.size() ? content.size() : start;
+    charnum = charnum > content.size() - start ? content.size() - start : charnum;
     // float rgbmax =std::max({r,g,b});
     // Vec3f scale {rgbmax/background.r, rgbmax/background.g, rgbmax/background.b};
     if ( !cache_avaliable ) {

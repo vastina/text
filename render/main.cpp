@@ -71,7 +71,7 @@ int main( int argc, char* argv[] )
       load.DrawContent( 0, chars );
       chars = ( chars + ( count = ( count + 1 ) % 64 ) / 63 ) % ( load.content.size() + 1 );
 
-      ts.DrawContent();
+      ts.DrawContent( 100 );
       Title.DrawContent();
 
       player.HandleEvent();
