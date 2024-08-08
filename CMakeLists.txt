@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 if(WIN32)
   # Enable Hot Reload for MSVC compilers if supported.
@@ -91,13 +91,19 @@ if(WIN32)
 endif()
 find_package(Vulkan REQUIRED)
 
-# # glfw
-# if(WIN32)
-#   set(glfw_SOURCE_DIR   "${env}/glfw/3.4")
-#   set(glfw_include_dir  "${glfw_SOURCE_DIR}/include")
-#   set(glfw_lib_static   "${glfw_SOURCE_DIR}/lib-vc2022/glfw3_mt.lib")
-#   set(glfw_lib          "${glfw_SOURCE_DIR}/lib-vc2022/glfw3.lib")
-# endif()
+# glfw
+if(WIN32)
+  set(glfw_SOURCE_DIR   "${env}/glfw/3.4_")
+  set(glfw_include_dir  "${glfw_SOURCE_DIR}/include")
+  set(glfw_lib_static   "${glfw_SOURCE_DIR}/lib-vc2022/glfw3_mt.lib")
+  set(glfw_lib          "${glfw_SOURCE_DIR}/lib-vc2022/glfw3.lib")
+endif()
+
+# glad
+if(WIN32)
+  set(glad_include_dir  "${env}/glad/include")
+  set(glad_source_file  "${env}/glad/src/glad.c")
+endif()
 
 # # glew
 # if(WIN32)
@@ -156,7 +162,7 @@ add_executable(${VK_SDL} ${SOURCES_VK_SDL})
 
 set(GL_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${GL_SDL}/include")
 file(GLOB SOURCES_GL_SDL "${CMAKE_SOURCE_DIR}/${GL_SDL}/*.cpp")
-add_executable(${GL_SDL} ${SOURCES_GL_SDL})
+add_executable(${GL_SDL} ${SOURCES_GL_SDL} ${glad_source_file})
 
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -211,7 +217,8 @@ if(WIN32)
   )
   target_include_directories(${GL_SDL} PRIVATE
     ${BASE_INCLUDE} ${GL_SDL_INCLUDE}
-    # ${glfw_include_dir} ${glew_include_dir}
+    ${glad_include_dir}
+    ${glfw_include_dir}
     # ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
     ${SDL2_INCLUDE_DIRS}
     # ${utfcpp_INCLUDE_DIR}
@@ -220,7 +227,7 @@ if(WIN32)
   )
   target_link_libraries(${GL_SDL} PRIVATE 
     ${SDL2_LIBRARIES}
-    # ${glfw_lib}
+    ${glfw_lib}
     # ${glew_lib}
     # C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\<version-num>\\um\\x64
     # cl will search this path by default

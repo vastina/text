@@ -57,7 +57,7 @@ struct shape
 
 struct Triangle : public shape
 {
-  std::array<Vertex*, 3> points {new Vertex(), new Vertex(), new Vertex()};
+  std::array<Vertex*, 3> points { new Vertex(), new Vertex(), new Vertex() };
 
   virtual ~Triangle() override = default;
   void draw() const override
@@ -113,13 +113,16 @@ struct TexCoord : public Quad
       p = new TexCoordPoint();
     }
   }
-  ~TexCoord() override = default;
-  
+  ~TexCoord() override
+  {
+    for ( auto& p : points )
+      delete dynamic_cast<TexCoordPoint*>( p );
+  }
+
   u32 id;
   void loadTexture( const char* filename )
   {
-    if(!std::filesystem::exists(filename))
-    {
+    if ( !std::filesystem::exists( filename ) ) {
       std::cerr << "File not exists" << std::endl;
       return;
     }
@@ -154,7 +157,7 @@ struct TexCoord : public Quad
   void draw() const override
   {
     glEnable( GL_TEXTURE_2D );
-    glBindTexture(GL_TEXTURE_2D, id);
+    glBindTexture( GL_TEXTURE_2D, id );
     glBegin( GL_QUADS );
     for ( const auto& p : points ) {
       p->setPoint();
@@ -181,7 +184,7 @@ struct Cube : public shape
 
   virtual ~Cube() override
   {
-    for( auto& f : faces )
+    for ( auto& f : faces )
       delete f;
   }
   void draw() const override
