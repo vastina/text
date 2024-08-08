@@ -12,22 +12,18 @@ int main( int argc, char* argv[] )
     vas::DrawBoard b { player.CreateTexture(), ww, hh };
 
     vas::typeSetter ts {
-      vas::Readfile( "test/content.txt" ), b, {}, "C:/Windows/Fonts/consola.ttf" };
+      vas::Readfile( "render/main.cpp" ), b, {}, "C:/Windows/Fonts/consola.ttf" };
     ts.setRect( 5, 100, ww - 10, hh - 250 );
     ts.background = { 0x70, 0x80, 0x90 };
     ts.config.char_height -= ts.config.char_height * 3 / 5;
     ts.LoadContent();
     ts.calculateContent();
 
-    vas::typeSetter load {
-      "========================================================================================",
-      b };
-    load.setRect( 100, hh - 100, 1919810, 114514 );
-    load.config.draw_start_y = 7;
-    load.config.ygap = 12;
+    vas::typeSetter load { "=", b };
     load.background = { 0x66, 0xcd, 0xaa };
     load.LoadContent();
-    load.calculateContent( true, true );
+    load.setRect( 100, hh - 100, ww - 200, load.charConfig.getMaxcharheight() * 2 );
+    load.calculateContent();
 
     vas::typeSetter Title { "这是标题", b, {} };
     Title.setRect( 300, 20, ww - 400, 70 );
@@ -37,6 +33,7 @@ int main( int argc, char* argv[] )
     Title.calculateContent( true, true );
 
     mousehandle m { b };
+    player.addEventhandle( SDL_KEYDOWN, [&player]( const SDL_Event& ) { player.Quit(); } );
     player.addEventhandle( SDL_MOUSEBUTTONDOWN, [&m]( const SDL_Event& e ) { m.DealDown( e ); } );
     player.addEventhandle( SDL_MOUSEBUTTONUP, [&]( const SDL_Event& e ) {
       m.DealUp( e );
@@ -68,8 +65,12 @@ int main( int argc, char* argv[] )
     while ( !player.ShouldQuit() ) {
       b.ClearBuffer();
 
-      load.DrawContent( 0, chars );
-      chars = ( chars + ( count = ( count + 1 ) % 64 ) / 63 ) % ( load.content.size() + 1 );
+      // load.DrawContent( 0, chars );
+      chars = ( chars + ( count = ( count + 1 ) % 64 ) / 63 ) % ( load.width / load.charConfig.getMaxcharwidth() );
+      for ( u32 i = load.top; i < load.top + load.height; i++ ) {
+        load.b.pic.setLine(
+          i, load.left, load.left + load.charConfig.getMaxcharwidth() * chars, load.background );
+      }
 
       ts.DrawContent( 100 );
       Title.DrawContent();

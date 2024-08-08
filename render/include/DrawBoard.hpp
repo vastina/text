@@ -18,6 +18,8 @@ struct pixeler
     if ( SDL_LockTexture( texture, nullptr, (void**)&pixels, &pitch ) != 0 ) {
       // do something
     }
+    // SDL_LockTexture( texture, nullptr, (void**)&pixels, reinterpret_cast<int*>(&width) );
+    // width /= 4;
   }
   ~pixeler() { SDL_DestroyTexture( texture ); }
   void setIndex( u32 x, u32 y, RGB color ) const

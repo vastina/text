@@ -206,4 +206,13 @@ static inline u32 RGBtoU32( RGB color )
 }
 }
 
+#define print_once( description, data )                                                            \
+  {                                                                                                \
+    static bool fortest { true };                                                                  \
+    if ( fortest ) {                                                                               \
+      fortest = false;                                                                             \
+      std::cout << ( description ) << ' ' << ( data ) << '\n';                                     \
+    }                                                                                              \
+  }
+
 #endif

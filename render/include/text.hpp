@@ -102,9 +102,9 @@ private:
     const u32 posy { top + y_offset };
     if ( low_chars.contains( ch ) ) {
       if ( diff > 0 )
-        poscache[i] = { posx, posy + diff + ( diff * 3 ) / 4 };
+        poscache[i] = { posx, posy + diff + ( diff * 7 ) / 6 };
       else
-        poscache[i] = { posx, posy + maxH / 4 };
+        poscache[i] = { posx, posy + maxH / 3 };
     } else if ( high_chars.contains( ch ) ) {
       poscache[i] = { posx, posy + diff / 2 };
     } else if ( braces.contains( ch ) ) {
