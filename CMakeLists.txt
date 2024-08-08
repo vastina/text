@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 
 if(WIN32)
   # Enable Hot Reload for MSVC compilers if supported.
@@ -32,6 +32,8 @@ set(GAME1 Minesweeper)
 project(${GAME1})
 set(GAME2 LightsOff)
 project(${GAME2})
+set(GAME3 rhythm)
+project(${GAME3})
 
 #find_packages#########################################################################################
 ###############
@@ -144,6 +146,10 @@ set(GAME2_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME2}/include")
 file(GLOB SOURCES_GAME2 "${CMAKE_SOURCE_DIR}/${GAME2}/*.cpp")
 add_executable(${GAME2} ${SOURCES_GAME2})
 
+set(GAME3_INCLUDE "${CMAKE_SOURCE_DIR}/${GAME3}/include")
+file(GLOB SOURCES_GAME3 "${CMAKE_SOURCE_DIR}/${GAME3}/*.cpp")
+add_executable(${GAME3} ${SOURCES_GAME3})
+
 set(VK_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${VK_SDL}/include")
 file(GLOB SOURCES_VK_SDL "${CMAKE_SOURCE_DIR}/${VK_SDL}/*.cpp")
 add_executable(${VK_SDL} ${SOURCES_VK_SDL})
@@ -172,6 +178,7 @@ if(WIN32)
       WIN32_EXECUTABLE TRUE
       LINK_FLAGS "/SUBSYSTEM:WINDOWS" # "/ENTRY:mainCRTStartup"
     )
+    set_property(TARGET ${GAME3} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
   endif()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /W3 -fsanitize=address /Zi")
@@ -253,6 +260,17 @@ target_link_libraries(${VK_SDL} PRIVATE
     ${SDL2_LIBRARIES}
     ${freetype_lib}
   )
+  target_include_directories(${GAME3} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME3_INCLUDE}
+    ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
+    ${SDL2_INCLUDE_DIRS}
+    ${utfcpp_INCLUDE_DIR}
+    ${glm_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME3} PRIVATE 
+    ${SDL2_LIBRARIES}
+    ${freetype_lib}
+  )
 elseif(LINUX)
   target_include_directories(${MAINPROJECT} PRIVATE
     ${BASE_INCLUDE} ${RENDER_INCLUDE}
@@ -304,6 +322,17 @@ elseif(LINUX)
   target_link_libraries(${GAME2} PRIVATE 
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
+    ${FREETYPE_LIBRARIES}
+    ${X11_LIBRARIES}
+  )
+  target_include_directories(${GAME3} PRIVATE
+    ${BASE_INCLUDE} ${RENDER_INCLUDE} ${GAME3_INCLUDE}
+    ${FREETYPE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS}
+    ${X11_INCLUDE_DIR}
+    ${utfcpp_INCLUDE_DIR}
+  )
+  target_link_libraries(${GAME3} PRIVATE
+    ${SDL2_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
   )

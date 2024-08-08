@@ -122,6 +122,7 @@ public:
         h();
     }
   }
+  inline void Quit() { quit = true; }
   inline bool ShouldQuit() const { return quit; }
 };
 
