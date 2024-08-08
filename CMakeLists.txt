@@ -26,8 +26,6 @@ set(MAINPROJECT render)
 project(${MAINPROJECT})
 set(VK_SDL vk)
 project(${VK_SDL})
-set(GL_SDL gl)
-project(${GL_SDL})
 set(GAME1 Minesweeper)
 project(${GAME1})
 set(GAME2 LightsOff)
@@ -99,25 +97,6 @@ if(WIN32)
   set(glfw_lib          "${glfw_SOURCE_DIR}/lib-vc2022/glfw3.lib")
 endif()
 
-# glad
-if(WIN32)
-  set(glad_include_dir  "${env}/glad/include")
-  set(glad_source_file  "${env}/glad/src/glad.c")
-endif()
-
-# # glew
-# if(WIN32)
-#   set(glew_SOURCE_DIR   "${env}/glew/2.2.0")
-#   set(glew_include_dir  "${glew_SOURCE_DIR}/include")
-#   set(glew_lib_static   "${glew_SOURCE_DIR}/lib/Release/x64/glew32s.lib")
-#   set(glew_lib          "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
-# endif()
-
-if(LINUX)
-  find_package(OpenGL REQUIRED COMPONENTS OpenGL)
-  find_package(GLUT REQUIRED)
-endif()
-
 # stb
 if(WIN32)
   set(stb_include_dir   "${env}/stb/include")
@@ -160,19 +139,10 @@ set(VK_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${VK_SDL}/include")
 file(GLOB SOURCES_VK_SDL "${CMAKE_SOURCE_DIR}/${VK_SDL}/*.cpp")
 add_executable(${VK_SDL} ${SOURCES_VK_SDL})
 
-set(GL_SDL_INCLUDE "${CMAKE_SOURCE_DIR}/${GL_SDL}/include")
-file(GLOB SOURCES_GL_SDL "${CMAKE_SOURCE_DIR}/${GL_SDL}/*.cpp")
-add_executable(${GL_SDL} ${SOURCES_GL_SDL} ${glad_source_file})
-
 if(WIN32)
   if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ${LIBBASE} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${MAINPROJECT} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)  
-    set_property(TARGET ${GL_SDL} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
-    # set_target_properties(${GL_SDL} PROPERTIES
-    #   WIN32_EXECUTABLE TRUE
-    #   LINK_FLAGS "/SUBSYSTEM:WINDOWS"
-    # )
     set_property(TARGET ${VK_SDL} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${GAME1} PROPERTY CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
     set_target_properties(${GAME1} PROPERTIES
@@ -214,26 +184,6 @@ if(WIN32)
     # ${LIBBASE}
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${freetype_lib}
-  )
-  target_include_directories(${GL_SDL} PRIVATE
-    ${BASE_INCLUDE} ${GL_SDL_INCLUDE}
-    ${glad_include_dir}
-    ${glfw_include_dir}
-    # ${freetype_SOURCE_DIR}/include ${freetype_SOURCE_DIR}/include/freetype 
-    ${SDL2_INCLUDE_DIRS}
-    # ${utfcpp_INCLUDE_DIR}
-    ${stb_include_dir}
-    ${glm_INCLUDE_DIR}
-  )
-  target_link_libraries(${GL_SDL} PRIVATE 
-    ${SDL2_LIBRARIES}
-    ${glfw_lib}
-    # ${glew_lib}
-    # C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\<version-num>\\um\\x64
-    # cl will search this path by default
-    "OpenGL32.lib"
-    "GlU32.Lib"
-    # ${freetype_lib}
   )
   target_include_directories(${VK_SDL} PRIVATE
   ${BASE_INCLUDE} ${VK_SDL_INCLUDE}
@@ -290,15 +240,6 @@ elseif(LINUX)
     ${SDL2_LIBRARIES} # SDL2_image::SDL2_image 
     ${FREETYPE_LIBRARIES}
     ${X11_LIBRARIES}
-  )
-  target_include_directories(${GL_SDL} PRIVATE
-    ${BASE_INCLUDE} ${GL_SDL_INCLUDE}
-    ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS}
-    ${SDL2_INCLUDE_DIRS}
-  )
-  target_link_libraries(${GL_SDL} PRIVATE 
-    ${SDL2_LIBRARIES}
-    ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}
   )
   target_include_directories(${VK_SDL} PRIVATE
     ${BASE_INCLUDE} ${VK_SDL_INCLUDE}
