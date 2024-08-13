@@ -22,7 +22,7 @@ struct pixeler
   ~pixeler() { SDL_DestroyTexture( texture ); }
   void setIndex( u32 x, u32 y, RGB color ) const
   {
-    if ( x > width || y > height )
+    if ( x >= width || y >= height )
       return;
     pixels[y * width + x] = RGBtoU32( color );
   }
