@@ -13,7 +13,7 @@ int main( int argc, char* argv[] )
     auto player { vas::Player( argc > 1 ? argv[1] : argv[0], ww, hh ) };
     vas::DrawBoard b { player.CreateTexture(), ww, hh };
 
-    std::array<vas::round*, 4> rounds;
+    std::array<vas::round, 4> rounds {};
     std::array<int, 4> steps { 1, 2, 3, 4 };
     constexpr auto genColor {
       []() -> glm::vec4 { return { rand() % 256, rand() % 256, rand() % 256, 1.f }; } };
@@ -22,8 +22,8 @@ int main( int argc, char* argv[] )
     constexpr u32 startHeight { radius };
     srand( time( nullptr ) );
     for ( u32 i = 0; i < rounds.size(); i++ ) {
-      rounds[i] = new vas::round( unitWidth / 2 + unitWidth * i, startHeight, radius );
-      rounds[i]->color = genColor();
+      rounds[i] = vas::round( unitWidth / 2 + unitWidth * i, startHeight, radius );
+      rounds[i].color = genColor();
     }
 
     player.addEventhandle( SDL_KEYDOWN, [&player]( const SDL_Event& ) { player.Quit(); } );
@@ -32,11 +32,11 @@ int main( int argc, char* argv[] )
       b.ClearBuffer();
 
       for ( int i = 0; auto& r : rounds ) {
-        r->Draw( b );
-        r->centerY += steps[i];
-        if ( r->centerY > hh - radius || r->centerY < radius ) {
+        r.Draw( b );
+        r.centerY += steps[i];
+        if ( r.centerY > hh - radius || r.centerY < radius ) {
           steps[i] = -steps[i];
-          r->centerY += steps[i];
+          r.centerY += steps[i];
         }
         i++;
       }
